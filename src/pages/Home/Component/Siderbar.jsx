@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
+import API from "../../../api/config";
 
 const categories = [
   { id: 1, name: 'Phones', image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=200&fit=crop', slug: 'phones' },
@@ -22,7 +22,7 @@ const Sidebar = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/products/');
+        const res = await API.get('/api/products/');
         let data = res.data;
         if (res.data.productdata) data = res.data.productdata;
         else if (res.data.products) data = res.data.products;
@@ -107,7 +107,7 @@ const Sidebar = () => {
                    onClick={() => navigate('/product', { state: prod })}>
                 <div className="flex items-center gap-3">
                   <img 
-                    src={prod.product_img?.startsWith('http') ? prod.product_img : `http://127.0.0.1:8000${prod.product_img}`}
+                    src={prod.product_img?.startsWith('http') ? prod.product_img : `${process.env.REACT_APP_API_URL}${prod.product_img}`}
                     className="w-12 h-12 object-cover rounded"
                     alt={prod.product_name}
                     onError={(e) => e.target.src = 'https://via.placeholder.com/48x48'}

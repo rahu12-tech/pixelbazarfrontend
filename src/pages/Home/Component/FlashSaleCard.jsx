@@ -9,7 +9,7 @@ import { BsHeart } from "react-icons/bs";
 import { FaStar } from "react-icons/fa";
 import { IoIosHeart } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import API from "../../../api/config";
 import toast, { Toaster } from "react-hot-toast";
 
 export default function FlashSalesPage() {
@@ -40,7 +40,7 @@ export default function FlashSalesPage() {
 useEffect(() => {
   const fetchProducts = async () => {
     try {
-      const res = await axios.get("http://127.0.0.1:8000/api/products/");
+      const res = await API.get("/api/products/");
       console.log("FlashSale API response:", res.data);
       
       let data = res.data;
@@ -77,7 +77,7 @@ useEffect(() => {
     };
 
     try {
-      const res = await axios.post("http://127.0.0.1:8000/api/cart/add/", cartData, {
+      const res = await API.post("/api/cart/add/", cartData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -159,7 +159,7 @@ useEffect(() => {
                 {wishlistClicked[product.id] ? <IoIosHeart className="text-red-400" size={20} /> : <BsHeart size={18} />}
               </button>
                <img
-      src={product.product_img?.startsWith('http') ? product.product_img : `http://127.0.0.1:8000${product.product_img}`}
+      src={product.product_img?.startsWith('http') ? product.product_img : `${process.env.REACT_APP_API_URL}${product.product_img}`}
       alt={product.product_name}
       style={{ width: "150px", height: "150px" }}
       onError={(e) => {

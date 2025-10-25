@@ -11,7 +11,7 @@ import { IoIosHeart } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { FaDiagramNext } from "react-icons/fa6";
 import { GrFormNextLink, GrFormPreviousLink } from "react-icons/gr";
-import axios from "axios";
+import API from "../../../api/config";
 import toast, { Toaster } from "react-hot-toast";
 
 const BestSellingProducts = () => {
@@ -23,7 +23,7 @@ const BestSellingProducts = () => {
     const [products, setProducts] = useState([]);
 
     useEffect(() => {
-        axios.get("http://127.0.0.1:8000/api/products/")
+        API.get("/api/products/")
 
             .then((res) => {
                 const data = res.data.productdata || res.data;
@@ -57,8 +57,8 @@ const BestSellingProducts = () => {
         };
         
         try {
-            const res = await axios.post(
-                "http://127.0.0.1:8000/api/cart/add/", 
+            const res = await API.post(
+                "/api/cart/add/", 
                 cartData,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -156,7 +156,7 @@ const BestSellingProducts = () => {
                             <img
                                 src={
                                     product.product_img ? 
-                                    (product.product_img.startsWith('http') ? product.product_img : `http://127.0.0.1:8000${product.product_img}`) :
+                                    (product.product_img.startsWith('http') ? product.product_img : `${process.env.REACT_APP_API_URL}${product.product_img}`) :
                                     'https://via.placeholder.com/150x150?text=' + encodeURIComponent(product.product_name || 'Product')
                                 }
                                 alt={product.product_name || 'Product'}

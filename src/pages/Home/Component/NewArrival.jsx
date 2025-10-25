@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import API from "../../../api/config";
 import toast, { Toaster } from "react-hot-toast";
 
 const NewArrival = () => {
@@ -11,7 +11,7 @@ const NewArrival = () => {
     useEffect(() => {
         const fetchFeaturedProducts = async () => {
             try {
-                const res = await axios.get("http://127.0.0.1:8000/api/products/");
+                const res = await API.get("/api/products/");
                 let data = res.data;
                 if (res.data.productdata) data = res.data.productdata;
                 else if (res.data.products) data = res.data.products;
@@ -82,7 +82,7 @@ const NewArrival = () => {
                         <img
                             src={featuredProducts[0].product_img?.startsWith('http') ? 
                                 featuredProducts[0].product_img : 
-                                `http://127.0.0.1:8000${featuredProducts[0].product_img}`
+                                `${process.env.REACT_APP_API_URL}${featuredProducts[0].product_img}`
                             }
                             alt={featuredProducts[0].product_name}
                             className="w-full h-full object-cover transition-transform duration-500 md:group-hover:scale-105 cursor-pointer"
@@ -120,7 +120,7 @@ const NewArrival = () => {
                             <img
                                 src={product.product_img?.startsWith('http') ? 
                                     product.product_img : 
-                                    `http://127.0.0.1:8000${product.product_img}`
+                                    `${process.env.REACT_APP_API_URL}${product.product_img}`
                                 }
                                 alt={product.product_name}
                                 className="w-full h-full object-cover transition-transform duration-500 md:group-hover:scale-105 cursor-pointer"

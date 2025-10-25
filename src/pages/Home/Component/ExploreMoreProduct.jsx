@@ -5,7 +5,7 @@ import { addToWishlist } from "../../../redux/wishlist/wishlistSlice";
 import { BsHeart, BsEye, BsStar, BsStarFill } from "react-icons/bs";
 import { IoIosHeart } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import API from "../../../api/config";
 import toast, { Toaster } from "react-hot-toast";
 
 
@@ -18,7 +18,7 @@ const ExploreMoreProduct = () => {
     const [products, setProducts] = useState([]);
 
     useEffect(() => {
-        axios.get("http://127.0.0.1:8000/api/products/")
+        API.get("/api/products/")
             .then((res) => {
                 const data = res.data.productdata || res.data;
                 console.log(data);
@@ -41,7 +41,7 @@ const ExploreMoreProduct = () => {
         };
 
         try {
-            const res = await axios.post("http://127.0.0.1:8000/api/cart/add/", cartData, {
+            const res = await API.post("/api/cart/add/", cartData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
