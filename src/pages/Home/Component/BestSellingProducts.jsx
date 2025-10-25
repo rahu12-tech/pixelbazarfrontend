@@ -156,7 +156,7 @@ const BestSellingProducts = () => {
                             <img
                                 src={
                                     product.product_img ? 
-                                    (product.product_img.startsWith('http') ? product.product_img : `${process.env.REACT_APP_API_URL}${product.product_img}`) :
+                                    (product.product_img.startsWith('http') ? product.product_img : `${import.meta.env.VITE_API_URL}${product.product_img}`) :
                                     'https://via.placeholder.com/150x150?text=' + encodeURIComponent(product.product_name || 'Product')
                                 }
                                 alt={product.product_name || 'Product'}

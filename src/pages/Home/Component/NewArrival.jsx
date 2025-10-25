@@ -82,7 +82,7 @@ const NewArrival = () => {
                         <img
                             src={featuredProducts[0].product_img?.startsWith('http') ? 
                                 featuredProducts[0].product_img : 
-                                `${process.env.REACT_APP_API_URL}${featuredProducts[0].product_img}`
+                                `${import.meta.env.VITE_API_URL}${featuredProducts[0].product_img}`
                             }
                             alt={featuredProducts[0].product_name}
                             className="w-full h-full object-cover transition-transform duration-500 md:group-hover:scale-105 cursor-pointer"
@@ -120,7 +120,7 @@ const NewArrival = () => {
                             <img
                                 src={product.product_img?.startsWith('http') ? 
                                     product.product_img : 
-                                    `${process.env.REACT_APP_API_URL}${product.product_img}`
+                                    `${import.meta.env.VITE_API_URL}${product.product_img}`
                                 }
                                 alt={product.product_name}
                                 className="w-full h-full object-cover transition-transform duration-500 md:group-hover:scale-105 cursor-pointer"

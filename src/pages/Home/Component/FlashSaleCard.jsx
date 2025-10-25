@@ -159,7 +159,7 @@ useEffect(() => {
                 {wishlistClicked[product.id] ? <IoIosHeart className="text-red-400" size={20} /> : <BsHeart size={18} />}
               </button>
                <img
-      src={product.product_img?.startsWith('http') ? product.product_img : `${process.env.REACT_APP_API_URL}${product.product_img}`}
+      src={product.product_img?.startsWith('http') ? product.product_img : `${import.meta.env.VITE_API_URL}${product.product_img}`}
       alt={product.product_name}
       style={{ width: "150px", height: "150px" }}
       onError={(e) => {

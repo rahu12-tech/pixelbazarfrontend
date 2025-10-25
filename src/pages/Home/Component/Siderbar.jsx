@@ -107,7 +107,7 @@ const Sidebar = () => {
                    onClick={() => navigate('/product', { state: prod })}>
                 <div className="flex items-center gap-3">
                   <img 
-                    src={prod.product_img?.startsWith('http') ? prod.product_img : `${process.env.REACT_APP_API_URL}${prod.product_img}`}
+                    src={prod.product_img?.startsWith('http') ? prod.product_img : `${import.meta.env.VITE_API_URL}${prod.product_img}`}
                     className="w-12 h-12 object-cover rounded"
                     alt={prod.product_name}
                     onError={(e) => e.target.src = 'https://via.placeholder.com/48x48'}
