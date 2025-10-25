@@ -33,7 +33,7 @@ const Header = () => {
     }
 
     axios
-      .get("http://127.0.0.1:8000/api/cart/", { headers: { Authorization: `Bearer ${token}` } })
+      .get(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/cart/`, { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => {
         const cartItems = res.data.data || res.data || [];
         updateCartCount(cartItems.length);
@@ -65,7 +65,7 @@ const Header = () => {
 
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:8000/api/products/")
+      .get(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/products/`)
       .then((res) => setProducts(res.data.productdata || res.data))
       .catch(() => toast.error("Failed to fetch products"));
   }, []);
@@ -87,7 +87,7 @@ const Header = () => {
       if (token) {
         try {
           await axios.post(
-            "http://127.0.0.1:8000/api/auth/logout/",
+            `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/auth/logout/`,
             {},
             { headers: { Authorization: `Bearer ${token}` } }
           );

@@ -19,10 +19,11 @@ function Filtercatogray() {
   useEffect(() => {
     // Try multiple endpoints
     const fetchProducts = async () => {
+      const baseURL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
       const endpoints = [
-        "http://127.0.0.1:8000/api/products/",
-        "http://127.0.0.1:8000/products/",
-        "http://127.0.0.1:8000/api/product/"
+        `${baseURL}/api/products/`,
+        `${baseURL}/products/`,
+        `${baseURL}/api/product/`
       ];
       
       for (const endpoint of endpoints) {
@@ -148,7 +149,7 @@ function Filtercatogray() {
     };
     
     axios
-      .post("http://127.0.0.1:8000/api/cart/add/", cartData, { headers: { Authorization: `Bearer ${token}` } })
+      .post(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/cart/add/`, cartData, { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => {
         if (res.data.status === 200) {
           toast.success(res.data.msg || "Added to cart successfully");

@@ -1,4 +1,4 @@
-import axios from "axios";
+import API from "../api/config";
 import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { BiPhone } from "react-icons/bi";
@@ -17,7 +17,7 @@ export default function Contact() {
     let handlecontact = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post('http://127.0.0.1:8000/api/contact/', inputvalue);
+            const res = await API.post('/api/contact/', inputvalue);
             if (res.data.status === 201 || res.data.status === 200) {
                 toast.success(res.data.message || 'Message sent successfully!');
                 setinputvalue({ name: "", email: "", number: "", message: "" });

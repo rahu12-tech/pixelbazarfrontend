@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import API from "../../../api/config";
 import toast, { Toaster } from "react-hot-toast";
 
 const MusicBanner = () => {
@@ -19,7 +19,7 @@ const MusicBanner = () => {
     useEffect(() => {
         const fetchMusicBanner = async () => {
             try {
-                const res = await axios.get('http://127.0.0.1:8000/api/music-banner/');
+                const res = await API.get('/api/music-banner/');
                 setBannerData(res.data.banner || res.data);
             } catch (err) {
                 console.error('Music banner fetch error:', err);
