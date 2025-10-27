@@ -19,18 +19,26 @@ export default function OrderSuccess() {
     if (token) {
       api.get('/api/orders/')
       .then((res) => {
-        console.log('Orders API response:', res.data);
+        console.log('OrderSuccess - Full API response:', res.data);
         
-        // Try different possible data structures
+        // Handle new API response structure
         let orders = [];
-        if (res.data.orders) orders = res.data.orders;
-        else if (res.data.data) orders = res.data.data;
-        else if (Array.isArray(res.data)) orders = res.data;
-        else if (res.data.results) orders = res.data.results;
+        if (res.data.status === 200 && res.data.orders) {
+          orders = res.data.orders;
+        } else if (res.data.orders) {
+          orders = res.data.orders;
+        } else if (Array.isArray(res.data)) {
+          orders = res.data;
+        }
+        
+        console.log('OrderSuccess - Raw orders:', orders);
         
         // Normalize order data structure
         const normalizedOrders = normalizeOrderData(orders);
+        console.log('OrderSuccess - Normalized orders:', normalizedOrders);
+        
         if (normalizedOrders.length > 0) {
+          console.log('OrderSuccess - Latest order:', normalizedOrders[0]);
           setLatestOrder(normalizedOrders[0]); // Get the latest order
         }
       })
@@ -77,20 +85,20 @@ export default function OrderSuccess() {
               </div>
               <div className="flex justify-between">
                 <span>Subtotal:</span>
-                <span>₹{(latestOrder.total_amount || latestOrder.totalAmount || 0).toFixed(2)}</span>
+                <span>₹{Number(latestOrder.total_amount || latestOrder.totalAmount || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Delivery Charges:</span>
-                <span>₹{(latestOrder.delivery_charges || 0).toFixed(2)}</span>
+                <span>₹{Number(latestOrder.delivery_charges || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>GST (18%):</span>
-                <span>₹{(((latestOrder.total_amount || latestOrder.totalAmount || 0) * 18) / 100).toFixed(2)}</span>
+                <span>₹{(Number(latestOrder.total_amount || latestOrder.totalAmount || 0) * 0.18).toFixed(2)}</span>
               </div>
               <hr className="my-2" />
               <div className="flex justify-between font-semibold">
                 <span>Final Amount:</span>
-                <span>₹{(latestOrder.final_amount || latestOrder.totalAmount || 0).toFixed(2)}</span>
+                <span>₹{Number(latestOrder.final_amount || latestOrder.totalAmount || 0).toFixed(2)}</span>
               </div>
             </div>
           </div>

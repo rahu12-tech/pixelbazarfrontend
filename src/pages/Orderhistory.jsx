@@ -27,12 +27,15 @@ function Orderhistory() {
                 console.log('Full Orders API response:', res);
                 console.log('Orders response data:', res.data);
                 
-                // Try different possible data structures
+                // Handle new API response structure
                 let orders = [];
-                if (res.data.orders) orders = res.data.orders;
-                else if (res.data.data) orders = res.data.data;
-                else if (Array.isArray(res.data)) orders = res.data;
-                else if (res.data.results) orders = res.data.results;
+                if (res.data.status === 200 && res.data.orders) {
+                    orders = res.data.orders;
+                } else if (res.data.orders) {
+                    orders = res.data.orders;
+                } else if (Array.isArray(res.data)) {
+                    orders = res.data;
+                }
                 
                 // Normalize order data structure
                 const normalizedOrders = normalizeOrderData(orders);
