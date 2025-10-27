@@ -36,6 +36,8 @@ function Orderhistory() {
                 
                 // Normalize order data structure
                 const normalizedOrders = normalizeOrderData(orders);
+                console.log('Normalized orders:', normalizedOrders);
+                console.log('First order products:', normalizedOrders[0]?.products);
                 setOrderdata(normalizedOrders);
             })
             .catch((err) => {
@@ -184,7 +186,7 @@ function Orderhistory() {
                                         Order ID: {order.order_id || order._id}
                                     </p>
                                     <p className="text-sm text-gray-500">
-                                        {(order.products || []).length} Products · Placed on {new Date(order.createdAt).toLocaleString()}
+                                        {(order.products && order.products.length > 0) ? order.products.length : 'No'} Products · Placed on {new Date(order.createdAt || order.created_at).toLocaleString()}
                                     </p>
                                     <p className="text-xs text-gray-400">
                                         Status: <span className="font-semibold text-blue-600">{order.tracking?.status || 'Order Placed'}</span>
@@ -202,7 +204,7 @@ function Orderhistory() {
 
                             {/* Products */}
                             <div className="border-t border-b border-gray-200 py-2 mb-3 space-y-2">
-                                {(order.products || []).map((prod, index) => {
+                                {(order.products && order.products.length > 0) ? order.products.map((prod, index) => {
                                     const imageUrl = prod.product_img || prod.image || prod.img;
                                     const finalImageUrl = imageUrl?.startsWith('http') ? imageUrl : 
                                         imageUrl ? `${import.meta.env.VITE_API_URL}${imageUrl}` : 
@@ -230,7 +232,12 @@ function Orderhistory() {
                                             </p>
                                         </div>
                                     );
-                                })}
+                                }) : (
+                                    <div className="text-center py-4 text-gray-500">
+                                        <p>No product details available</p>
+                                        <p className="text-xs">Order Amount: ₹{order.totalAmount || order.total_amount || 0}</p>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Order Summary */}

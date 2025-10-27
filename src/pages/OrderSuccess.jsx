@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { clearCart } from '../redux/cart/cartSlice';
 import { clearAllCarts } from '../utils/cartUtils';
+import { normalizeOrderData } from '../utils/orderUtils';
 import api from '../api/axiosConfig';
 
 export default function OrderSuccess() {
@@ -18,9 +19,19 @@ export default function OrderSuccess() {
     if (token) {
       api.get('/api/orders/')
       .then((res) => {
-        const orders = res.data.orders || [];
-        if (orders.length > 0) {
-          setLatestOrder(orders[0]); // Get the latest order
+        console.log('Orders API response:', res.data);
+        
+        // Try different possible data structures
+        let orders = [];
+        if (res.data.orders) orders = res.data.orders;
+        else if (res.data.data) orders = res.data.data;
+        else if (Array.isArray(res.data)) orders = res.data;
+        else if (res.data.results) orders = res.data.results;
+        
+        // Normalize order data structure
+        const normalizedOrders = normalizeOrderData(orders);
+        if (normalizedOrders.length > 0) {
+          setLatestOrder(normalizedOrders[0]); // Get the latest order
         }
       })
       .catch((err) => console.error('Error fetching latest order:', err));
@@ -66,20 +77,20 @@ export default function OrderSuccess() {
               </div>
               <div className="flex justify-between">
                 <span>Subtotal:</span>
-                <span>₹{latestOrder.total_amount}</span>
+                <span>₹{(latestOrder.total_amount || latestOrder.totalAmount || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Delivery Charges:</span>
-                <span>₹{latestOrder.delivery_charges || 0}</span>
+                <span>₹{(latestOrder.delivery_charges || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>GST (18%):</span>
-                <span>₹{((latestOrder.total_amount * 18) / 100).toFixed(2)}</span>
+                <span>₹{(((latestOrder.total_amount || latestOrder.totalAmount || 0) * 18) / 100).toFixed(2)}</span>
               </div>
               <hr className="my-2" />
               <div className="flex justify-between font-semibold">
                 <span>Final Amount:</span>
-                <span>₹{latestOrder.final_amount}</span>
+                <span>₹{(latestOrder.final_amount || latestOrder.totalAmount || 0).toFixed(2)}</span>
               </div>
             </div>
           </div>
