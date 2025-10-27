@@ -1,3 +1,4 @@
+import api from "../api/axiosConfig";
 import axios from "axios";
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -126,11 +127,9 @@ const Paymentway = () => {
     setCouponLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post('http://127.0.0.1:8000/api/apply-coupon/', {
+      const res = await api.post('/api/apply-coupon/', {
         coupon_code: couponCode,
         order_amount: calculateTotal()
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
 
       if (res.data.success) {
@@ -166,7 +165,7 @@ const Paymentway = () => {
       setPincodeStatus("error");
       return;
     }
-    axios.post("http://127.0.0.1:8000/api/check-pincode/", { pincode }).then((res) => {
+    api.post("/api/check-pincode/", { pincode }).then((res) => {
       if (res.data.status === 200) {
         setDeliveryInfo(res.data);
         setIsPincodeValid(true);
@@ -243,17 +242,13 @@ const Paymentway = () => {
       console.log('Sending COD order data:', orderData);
       
       try {
-        const orderRes = await axios.post("http://127.0.0.1:8000/api/order/", orderData, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const orderRes = await api.post("/api/order/", orderData);
         
         console.log('COD Order response:', orderRes.data);
         
         // Clear cart from backend
         try {
-          await axios.delete('http://127.0.0.1:8000/api/cart/clear/', {
-            headers: { Authorization: `Bearer ${token}` }
-          });
+          await api.delete('/api/cart/clear/');
         } catch (cartError) {
           console.log('Cart clear error:', cartError);
         }
@@ -344,14 +339,11 @@ async function startOnlinePayment(latitude, longitude, token) {
   
   console.log('Sending order data:', orderData);
   
-  const orderRes = await axios.post("http://127.0.0.1:8000/api/order/", orderData, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const orderRes = await api.post("/api/order/", orderData);
 
-  const { data } = await axios.post(
-    "http://127.0.0.1:8000/api/create-order/",
-    { amount: calculateFinalTotal(), currency: "INR" },
-    { headers: { "Content-Type": "application/json" } }
+  const { data } = await api.post(
+    "/api/create-order/",
+    { amount: calculateFinalTotal(), currency: "INR" }
   );
 
   const options = {
@@ -369,8 +361,8 @@ async function startOnlinePayment(latitude, longitude, token) {
     theme: { color: "#07a291db" },
     handler: async function (response) {
       try {
-        const verifyRes = await axios.post(
-          "http://127.0.0.1:8000/api/verify-payment/",
+        const verifyRes = await api.post(
+          "/api/verify-payment/",
           {
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
@@ -383,9 +375,7 @@ async function startOnlinePayment(latitude, longitude, token) {
           
           // Clear cart from backend
           const token = localStorage.getItem('token');
-          await axios.delete('http://127.0.0.1:8000/api/cart/clear/', {
-            headers: { Authorization: `Bearer ${token}` }
-          });
+          await api.delete('/api/cart/clear/');
           
           // Clear local cart
           localStorage.removeItem('cart');
@@ -667,7 +657,7 @@ async function startOnlinePayment(latitude, longitude, token) {
             >
               <div className="flex items-center gap-3">
                 <img 
-                  src={item.product_img?.startsWith('http') ? item.product_img : `http://127.0.0.1:8000${item.product_img}`} 
+                  src={item.product_img?.startsWith('http') ? item.product_img : `${import.meta.env.VITE_API_URL}${item.product_img}`} 
                   className="w-14 h-14 shadow-2xl object-cover rounded" 
                   alt={item.product_name}
                   onError={(e) => {

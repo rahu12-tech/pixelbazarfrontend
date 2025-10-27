@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { clearCart } from '../redux/cart/cartSlice';
 import { clearAllCarts } from '../utils/cartUtils';
-import axios from 'axios';
+import api from '../api/axiosConfig';
 
 export default function OrderSuccess() {
   const dispatch = useDispatch();
@@ -16,9 +16,7 @@ export default function OrderSuccess() {
     // Fetch latest order
     const token = localStorage.getItem('token');
     if (token) {
-      axios.get('http://127.0.0.1:8000/api/orders/', { 
-        headers: { Authorization: `Bearer ${token}` } 
-      })
+      api.get('/api/orders/')
       .then((res) => {
         const orders = res.data.orders || [];
         if (orders.length > 0) {

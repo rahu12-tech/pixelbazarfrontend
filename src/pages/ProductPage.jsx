@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "../api/axiosConfig";
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -76,10 +76,8 @@ export default function ProductPage() {
             quantity: 1
         };
         
-        axios
-            .post("http://127.0.0.1:8000/api/cart/add/", cartData, {
-                headers: { Authorization: `Bearer ${token}` },
-            })
+        api
+            .post("/api/cart/add/", cartData)
             .then((res) => {
                 if (res.data.status === 200) {
                     toast.success(res.data.msg || "Added to cart successfully!");
@@ -114,7 +112,7 @@ export default function ProductPage() {
                             {[1, 2, 3, 4].map((i) => (
                                 <img
                                     key={i}
-                                    src={productdel?.product_img?.startsWith('http') ? productdel.product_img : `http://127.0.0.1:8000${productdel?.product_img}`}
+                                    src={productdel?.product_img?.startsWith('http') ? productdel.product_img : `${import.meta.env.VITE_API_URL}${productdel?.product_img}`}
                                     alt={`thumb${i}`}
                                     className="rounded-lg cursor-pointer hover:border-red-500 w-full h-20 object-cover"
                                     onError={(e) => {
@@ -125,7 +123,7 @@ export default function ProductPage() {
                         </div>
                         <div className="col-span-4">
                             <img
-                                src={productdel?.product_img?.startsWith('http') ? productdel.product_img : `http://127.0.0.1:8000${productdel?.product_img}`}
+                                src={productdel?.product_img?.startsWith('http') ? productdel.product_img : `${import.meta.env.VITE_API_URL}${productdel?.product_img}`}
                                 alt={productdel?.product_name || 'Product'}
                                 className="w-full md:h-[500px] rounded-lg object-cover"
                                 onError={(e) => {

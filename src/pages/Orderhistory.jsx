@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from '../api/axiosConfig';
 import React, { useEffect, useState } from 'react';
 import jsPDF from "jspdf";
 import { useNavigate } from 'react-router-dom';
@@ -21,8 +21,8 @@ function Orderhistory() {
             return;
         }
         
-        axios
-            .get('http://127.0.0.1:8000/api/orders/', { headers: { Authorization: `Bearer ${token}` } })
+        api
+            .get('/api/orders/')
             .then((res) => {
                 console.log('Full Orders API response:', res);
                 console.log('Orders response data:', res.data);
@@ -95,7 +95,7 @@ function Orderhistory() {
 
     const OrderCancel = (orderId) => {
         const token = localStorage.getItem('token');
-        axios.post(`http://127.0.0.1:8000/api/orders/${orderId}/cancel/`, {}, { headers: { Authorization: `Bearer ${token}` } })
+        api.post(`/api/orders/${orderId}/cancel/`, {})
             .then((res) => {
                 toast.success(res.data.msg || 'Order cancelled successfully');
                 setOrderdata(prev => prev.map(order => 
@@ -121,10 +121,9 @@ function Orderhistory() {
         const token = localStorage.getItem("token");
 
         try {
-            const res = await axios.put(
-                `http://127.0.0.1:8000/return/${selectedOrder._id}`,
-                reason === "other" ? { reason: "other", extraReason: extraText } : { reason },
-                { headers: { Authorization: `Bearer ${token}` } }
+            const res = await api.put(
+                `/return/${selectedOrder._id}`,
+                reason === "other" ? { reason: "other", extraReason: extraText } : { reason }
             );
 
             toast.success(res.data.msg);
@@ -206,7 +205,7 @@ function Orderhistory() {
                                 {(order.products || []).map((prod, index) => {
                                     const imageUrl = prod.product_img || prod.image || prod.img;
                                     const finalImageUrl = imageUrl?.startsWith('http') ? imageUrl : 
-                                        imageUrl ? `http://127.0.0.1:8000${imageUrl}` : 
+                                        imageUrl ? `${import.meta.env.VITE_API_URL}${imageUrl}` : 
                                         'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=150&h=150&fit=crop';
                                     
                                     return (

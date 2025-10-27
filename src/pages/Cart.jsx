@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { clearCart } from "../redux/cart/cartSlice";
 import { syncCartData } from "../utils/cartUtils";
 import { formatOrderForCheckout } from "../utils/orderUtils";
-import axios from "axios";
+import api from "../api/axiosConfig";
 import toast, { Toaster } from "react-hot-toast";
 
 export default function CartPage() {
@@ -24,10 +24,8 @@ export default function CartPage() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    axios
-      .get("http://127.0.0.1:8000/api/cart/", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    api
+      .get("/api/cart/")
       .then((res) => {
         console.log('Cart API response:', res.data);
         const cartItems = res.data.items || res.data.cartapidata || res.data || [];
@@ -47,10 +45,8 @@ export default function CartPage() {
 
   const handleRemoveItem = (item) => {
     const token = localStorage.getItem("token");
-    axios
-      .delete(`http://127.0.0.1:8000/api/cart/${item.id}/remove/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    api
+      .delete(`/api/cart/${item.id}/remove/`)
       .then((res) => {
         toast.success(res.data.msg);
         setCartData((prev) => prev.filter((p) => p.id !== item.id));
