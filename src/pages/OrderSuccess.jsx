@@ -39,8 +39,8 @@ export default function OrderSuccess() {
         
         if (normalizedOrders.length > 0) {
           console.log('OrderSuccess - Latest order:', normalizedOrders[0]);
-        console.log('OrderSuccess - Latest order products:', normalizedOrders[0]?.products);
-        console.log('OrderSuccess - Products length:', normalizedOrders[0]?.products?.length);
+        console.log('🔍 OrderSuccess - Latest order products:', JSON.stringify(normalizedOrders[0]?.products, null, 2));
+        console.log('🔍 OrderSuccess - Products length:', normalizedOrders[0]?.products?.length);
           setLatestOrder(normalizedOrders[0]); // Get the latest order
         }
       })
