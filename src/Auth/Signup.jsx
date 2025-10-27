@@ -87,7 +87,7 @@ const handleSignup = async (e) => {
 
       try {
         console.log("sending signup data",updatedData);
-        const { data } = await axios.post(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/signup`, updatedData);
+        const { data } = await axios.post(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/signup/`, updatedData);
         if (data.msg === "OTP sent") {
           setMessage("OTP sent to your email.");
           setOtpSent(true);
@@ -109,7 +109,7 @@ const handleSignup = async (e) => {
     if (!otp.trim()) return setErrors({ otp: "OTP is required" });
 
     try {
-      const { data } = await axios.post(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/verify-otp`, {
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/verify-otp/`, {
         email: formData.email,
         otp,
         password: formData.password,
