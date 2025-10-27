@@ -36,43 +36,40 @@ export default function FlashSalesPage() {
     return () => clearInterval(timer);
   }, []);
 
- // Fetch products
-useEffect(() => {
-  const fetchProducts = async () => {
-    try {
-      const res = await API.get("/api/products/");
-      console.log("FlashSale API response:", res.data);
-      
-      let data = res.data;
-      if (res.data.productdata) data = res.data.productdata;
-      else if (res.data.products) data = res.data.products;
-      else if (res.data.data) data = res.data.data;
-      
-      console.log("FlashSale products:", data);
-      // Show products marked as flash sale
-      const flashSaleProducts = Array.isArray(data) ? data.filter(p => p.is_flash_sale || p.flash_sale).slice(0, 8) : [];
-      setProductApi(flashSaleProducts);
-    } catch (err) {
-      console.error("FlashSale products error:", err);
-      // Set dummy products for FlashSale
-      setProductApi([
-        { _id: '1', product_name: 'Flash Sale Item', product_price: 99, product_oldPrice: 149, product_img: '/placeholder.jpg', rating: 4 }
-      ]);
-    }
-  };
+  // Fetch products
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await API.get("/api/products/");
+        console.log("FlashSale API response:", res.data);
+        
+        let data = res.data;
+        if (res.data.productdata) data = res.data.productdata;
+        else if (res.data.products) data = res.data.products;
+        else if (res.data.data) data = res.data.data;
+        
+        const flashSaleProducts = Array.isArray(data) ? data.filter(p => p.is_flash_sale || p.flash_sale).slice(0, 8) : [];
+        setProductApi(flashSaleProducts);
+      } catch (err) {
+        console.error("FlashSale products error:", err);
+        // Dummy product fallback
+        setProductApi([
+          { _id: '1', product_name: 'Flash Sale Item', product_price: 99, product_oldPrice: 149, product_img: '/placeholder.jpg', rating: 4 }
+        ]);
+      }
+    };
 
-  fetchProducts();
-}, []);
+    fetchProducts();
+  }, []);
 
   const handleAddToCart = async (product) => {
-    const token = localStorage.getItem("token");
     if (!token) {
       toast.error("Please login to add items to cart");
       return;
     }
 
     const cartData = {
-      product_id: product._id || product.id,
+      product_id: product._id,
       quantity: 1
     };
 
@@ -80,7 +77,6 @@ useEffect(() => {
       const res = await API.post("/api/cart/add/", cartData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      
       if (res.data.status === 200) {
         toast.success(res.data.msg || "Added to cart successfully");
       } else {
@@ -94,12 +90,12 @@ useEffect(() => {
   };
 
   const handleToggleWishlist = (product) => {
-    setWishlistClicked((prev) => ({ ...prev, [product.id]: !prev[product.id] }));
+    setWishlistClicked((prev) => ({ ...prev, [product._id]: !prev[product._id] }));
     dispatch(
       addToWishlist({
-        id: product.id,
+        id: product._id,
         name: product.product_name,
-        price: product.price,
+        price: product.product_price,
         img: product.product_img,
       })
     );
@@ -108,7 +104,7 @@ useEffect(() => {
   const datial = async (product) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get(`http://127.0.0.1:8000/product/${product._id}`, {
+      const res = await API.get(`/product/${product._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       navigate("/product", { state: { ...product, delivery: res.data.delivery } });
@@ -144,47 +140,55 @@ useEffect(() => {
         breakpoints={{ 320: { slidesPerView: 1 }, 640: { slidesPerView: 2 }, 768: { slidesPerView: 3 }, 1024: { slidesPerView: 4 } }}
         loop={productapi.length > 4}
       >
-        {productapi.map((product) => (
-          <SwiperSlide key={product._id}>
-            <div className="border border-gray-300 rounded-lg p-4 flex flex-col items-center relative group">
-              {product.discount && (
-                <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-                  {product.discount}
-                </span>
-              )}
-              <button
-                onClick={() => handleToggleWishlist(product)}
-                className="absolute top-2 right-2 text-gray-500 opacity-0 group-hover:opacity-100 transition"
-              >
-                {wishlistClicked[product.id] ? <IoIosHeart className="text-red-400" size={20} /> : <BsHeart size={18} />}
-              </button>
-               <img
-      src={product.product_img?.startsWith('http') ? product.product_img : `${import.meta.env.VITE_API_URL}${product.product_img}`}
-      alt={product.product_name}
-      style={{ width: "150px", height: "150px" }}
-      onError={(e) => {
-        e.target.src = 'https://via.placeholder.com/150x150?text=' + encodeURIComponent(product.product_name || 'Product');
-      }}
-    />
-              <h3 className="font-semibold mt-2 text-center">{product.product_name}</h3>
-              <div className="flex justify-center mt-1">
-                {[...Array(5)].map((_, i) => (
-                  <FaStar key={i} size={14} className={i < product.rating ? "text-yellow-400" : "text-gray-300"} />
-                ))}
+        {productapi.map((product) => {
+          const imgSrc = product.product_img 
+            ? product.product_img.startsWith('http') 
+              ? product.product_img 
+              : `${import.meta.env.VITE_API_URL}${product.product_img}`
+            : `https://via.placeholder.com/150x150?text=${encodeURIComponent(product.product_name || 'Product')}`;
+
+          return (
+            <SwiperSlide key={product._id}>
+              <div className="border border-gray-300 rounded-lg p-4 flex flex-col items-center relative group">
+                {product.discount && (
+                  <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                    {product.discount}
+                  </span>
+                )}
+                <button
+                  onClick={() => handleToggleWishlist(product)}
+                  className="absolute top-2 right-2 text-gray-500 opacity-0 group-hover:opacity-100 transition"
+                >
+                  {wishlistClicked[product._id] ? <IoIosHeart className="text-red-400" size={20} /> : <BsHeart size={18} />}
+                </button>
+                <img
+                  src={imgSrc}
+                  alt={product.product_name}
+                  style={{ width: "150px", height: "150px" }}
+                  onError={(e) => {
+                    e.target.src = `https://via.placeholder.com/150x150?text=${encodeURIComponent(product.product_name || 'Product')}`;
+                  }}
+                />
+                <h3 className="font-semibold mt-2 text-center">{product.product_name}</h3>
+                <div className="flex justify-center mt-1">
+                  {[...Array(5)].map((_, i) => (
+                    <FaStar key={i} size={14} className={i < product.rating ? "text-yellow-400" : "text-gray-300"} />
+                  ))}
+                </div>
+                <p className="mt-1">
+                  ₹{product.product_price}{" "}
+                  <span className="line-through text-gray-500">₹{product.product_oldPrice}</span>
+                </p>
+                <button
+                  onClick={() => handleAddToCart(product)}
+                  className="mt-3 w-full bg-black text-white text-sm py-2 rounded hover:bg-gray-800 cursor-pointer transition"
+                >
+                  Add to Cart
+                </button>
               </div>
-              <p className="mt-1">
-                ₹{product.product_price}{" "}
-                <span className="line-through text-gray-500">₹{product.product_oldPrice}</span>
-              </p>
-              <button
-                onClick={() => handleAddToCart(product)}
-                className="mt-3 w-full bg-black text-white text-sm py-2 rounded hover:bg-gray-800 cursor-pointer transition"
-              >
-                Add to Cart
-              </button>
-            </div>
-          </SwiperSlide>
-        ))}
+            </SwiperSlide>
+          );
+        })}
       </Swiper>
     </section>
   );
