@@ -24,8 +24,11 @@ function Orderhistory() {
         api
             .get('/api/orders/')
             .then((res) => {
-                console.log('Full Orders API response:', res);
-                console.log('Orders response data:', res.data);
+                console.log('=== ORDER HISTORY DEBUG ===');
+                console.log('Full API response:', res);
+                console.log('Response data:', res.data);
+                console.log('Response status:', res.data.status);
+                console.log('Raw orders array:', res.data.orders);
                 
                 // Handle new API response structure
                 let orders = [];
@@ -37,10 +40,29 @@ function Orderhistory() {
                     orders = res.data;
                 }
                 
+                console.log('Extracted orders:', orders);
+                
+                if (orders.length > 0) {
+                    console.log('First order raw data:', orders[0]);
+                    console.log('First order products:', orders[0].products);
+                    console.log('First order address fields:', {
+                        fname: orders[0].fname,
+                        lname: orders[0].lname,
+                        address: orders[0].address,
+                        city: orders[0].city,
+                        state: orders[0].state
+                    });
+                }
+                
                 // Normalize order data structure
                 const normalizedOrders = normalizeOrderData(orders);
                 console.log('Normalized orders:', normalizedOrders);
-                console.log('First order products:', normalizedOrders[0]?.products);
+                
+                if (normalizedOrders.length > 0) {
+                    console.log('First normalized order:', normalizedOrders[0]);
+                    console.log('First normalized order products:', normalizedOrders[0].products);
+                }
+                
                 setOrderdata(normalizedOrders);
             })
             .catch((err) => {
@@ -300,18 +322,37 @@ function Orderhistory() {
                                 </p>
                                 <p><strong>Shipping Address:</strong> 
                                     {(() => {
+                                        console.log('Address debug for order:', order.order_id, {
+                                            fname: order.fname,
+                                            lname: order.lname,
+                                            address: order.address,
+                                            city: order.city,
+                                            state: order.state,
+                                            pincode: order.pincode,
+                                            mobile: order.mobile
+                                        });
+                                        
                                         // Check if shipping_address object exists
-                                        if (order.shipping_address && order.shipping_address.name && order.shipping_address.name !== 'N/A') {
+                                        if (order.shipping_address && order.shipping_address.name && order.shipping_address.name !== 'N/A' && order.shipping_address.name.trim()) {
                                             const addr = order.shipping_address;
                                             return `${addr.name}, ${addr.address}, ${addr.locality}, ${addr.city}, ${addr.state} - ${addr.pincode}${addr.phone ? `, Phone: ${addr.phone}` : ''}`;
                                         }
                                         
-                                        // Check if individual address fields exist
-                                        if (order.fname && order.fname !== 'N/A') {
-                                            return `${order.fname} ${order.lname || ''}, ${order.address || 'N/A'}${order.town ? `, ${order.town}` : ''}, ${order.city || 'N/A'}, ${order.state || 'N/A'} - ${order.pincode || 'N/A'}${order.mobile ? `, Phone: ${order.mobile}` : ''}`;
+                                        // Check if individual address fields exist and are not empty
+                                        if (order.fname && order.fname.trim() && order.fname !== 'N/A') {
+                                            const addressParts = [];
+                                            if (order.fname || order.lname) addressParts.push(`${order.fname || ''} ${order.lname || ''}`.trim());
+                                            if (order.address && order.address.trim()) addressParts.push(order.address);
+                                            if (order.town && order.town.trim()) addressParts.push(order.town);
+                                            if (order.city && order.city.trim()) addressParts.push(order.city);
+                                            if (order.state && order.state.trim()) addressParts.push(order.state);
+                                            if (order.pincode && order.pincode.trim()) addressParts.push(`- ${order.pincode}`);
+                                            if (order.mobile && order.mobile.trim()) addressParts.push(`Phone: ${order.mobile}`);
+                                            
+                                            return addressParts.length > 0 ? addressParts.join(', ') : 'Address not available';
                                         }
                                         
-                                        return 'Address not available';
+                                        return 'Address not available - Backend not sending address data';
                                     })()
                                 }</p>
                                 <p><strong>Expected Delivery:</strong> {new Date(new Date(order.createdAt || order.created_at).setDate(new Date(order.createdAt || order.created_at).getDate() + 5)).toLocaleDateString()}</p>
