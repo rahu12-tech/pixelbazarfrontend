@@ -34,8 +34,22 @@ function Orderhistory() {
                     orders = res.data;
                 }
                 
+                // Debug: Check what's in the latest order
+                if (orders.length > 0) {
+                    console.log('🔍 RAW Latest Order:', orders[0]);
+                    console.log('🔍 RAW Products Data:', orders[0].products);
+                    console.log('🔍 RAW Products Length:', orders[0].products?.length);
+                }
+                
                 // Normalize order data structure
                 const normalizedOrders = normalizeOrderData(orders);
+                
+                if (normalizedOrders.length > 0) {
+                    console.log('🔍 NORMALIZED Latest Order:', normalizedOrders[0]);
+                    console.log('🔍 NORMALIZED Products:', normalizedOrders[0].products);
+                    console.log('🔍 NORMALIZED Products Length:', normalizedOrders[0].products?.length);
+                }
+                
                 setOrderdata(normalizedOrders);
             })
             .catch((err) => {
