@@ -241,11 +241,14 @@ const Paymentway = () => {
       };
       
       console.log('Sending COD order data:', orderData);
+      console.log('Products in order data:', orderData.products);
+      console.log('Products length:', orderData.products?.length);
       
       try {
         const orderRes = await api.post("/api/order/", orderData);
         
         console.log('COD Order response:', orderRes.data);
+        console.log('Order created with ID:', orderRes.data.order_id);
         
         // Clear cart from backend
         try {
