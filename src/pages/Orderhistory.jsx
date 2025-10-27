@@ -34,12 +34,6 @@ function Orderhistory() {
                     orders = res.data;
                 }
                 
-                // Debug latest order
-                if (orders.length > 0) {
-                    console.log('Latest order products:', orders[0].products);
-                    console.log('Latest order ID:', orders[0].order_id);
-                }
-                
                 // Normalize order data structure
                 const normalizedOrders = normalizeOrderData(orders);
                 setOrderdata(normalizedOrders);
