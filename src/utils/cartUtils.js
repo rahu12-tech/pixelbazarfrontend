@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from '../api/axiosConfig';
 
 // Utility function to clear both local and server cart
 export const clearAllCarts = async (dispatch, clearCartAction) => {
@@ -9,9 +9,7 @@ export const clearAllCarts = async (dispatch, clearCartAction) => {
     // Clear server cart
     const token = localStorage.getItem('token');
     if (token) {
-      await axios.delete('http://127.0.0.1:8000/api/cart/clear/', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.delete('/api/cart/clear/');
     }
     
     // Clear localStorage cart as backup
