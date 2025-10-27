@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { clearCart } from "../redux/cart/cartSlice";
 import { clearAllCarts } from "../utils/cartUtils";
+import toast, { Toaster } from "react-hot-toast";
 import * as Yup from "yup";
 
 const Paymentway = () => {
@@ -283,9 +284,9 @@ const Paymentway = () => {
         // Show success and redirect
         toast.success('Order placed successfully! Redirecting...');
         
-        // Force redirect after short delay
+        // Navigate to success page
         setTimeout(() => {
-          window.location.href = '/ordersuccess';
+          navigate('/ordersuccess');
         }, 1000);
         return;
       } catch (error) {
@@ -385,9 +386,9 @@ async function startOnlinePayment(latitude, longitude, token) {
           window.dispatchEvent(new Event('cartUpdated'));
           
           // Show success message and redirect
-          alert('Payment successful! Redirecting to order success page...');
+          toast.success('Payment successful! Redirecting to order success page...');
           setTimeout(() => {
-            window.location.replace('/ordersuccess');
+            navigate('/ordersuccess');
           }, 1000);
         } else {
           console.error('Payment verification failed:', verifyRes.data);
@@ -410,6 +411,7 @@ async function startOnlinePayment(latitude, longitude, token) {
 
   return (
     <div className="flex flex-col md:flex-row items-start justify-center gap-6 p-2">
+      <Toaster position="top-right" reverseOrder={false} />
       {/* Billing Form */}
       <div className="bg-white shadow-xl rounded-3xl p-6 w-full md:w-2/3">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Billing Details</h2>
