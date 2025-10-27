@@ -217,6 +217,7 @@ function Orderhistory() {
                             {/* Products */}
                             <div className="border-t border-b border-gray-200 py-2 mb-3 space-y-2">
                                 {(order.products && order.products.length > 0) ? order.products.map((prod, index) => {
+                                    console.log('🔍 Product Data:', prod);
                                     const imageUrl = prod.product_img || prod.image || prod.img;
                                     const finalImageUrl = imageUrl?.startsWith('http') ? imageUrl : 
                                         imageUrl ? `${import.meta.env.VITE_API_URL}${imageUrl}` : 
