@@ -12,19 +12,31 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    if (!token) {
+      console.log('No token found');
+      return;
+    }
+    
+    const baseURL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
     axios
-      .get("http://127.0.0.1:8000/profile", {
+      .get(`${baseURL}/api/profile/`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
-        const user = res.data.userprofile;
+        console.log('Profile API response:', res.data);
+        const user = res.data.userprofile || res.data.user || res.data;
         setProfile(user);
         setInputData({
           ...user,
+          fname: user.first_name || user.fname || '',
+          lname: user.last_name || user.lname || '',
           profilePic: user.profilePic || "",
         });
       })
-      .catch(() => console.log("Failed to fetch profile"));
+      .catch((err) => {
+        console.error('Profile fetch error:', err);
+        toast.error('Failed to fetch profile');
+      });
   }, []);
 
   const logout = () => {
@@ -41,24 +53,50 @@ export default function ProfilePage() {
 
 const save = () => {
   const token = localStorage.getItem("token");
-  axios.post(
-    "http://127.0.0.1:8000/update-profile",
-    {
-      fname: inputData.fname,
-      lname: inputData.lname,
-      gender: inputData.gender,
-      number: inputData.number
-    },
+  if (!token) {
+    toast.error('Please login first');
+    return;
+  }
+  
+  const baseURL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+  
+  // Prepare update data
+  const updateData = {
+    first_name: inputData.fname || '',
+    last_name: inputData.lname || '',
+    gender: inputData.gender || '',
+    number: inputData.number || ''
+  };
+  
+  console.log('Sending update data:', updateData);
+  
+  axios.put(
+    `${baseURL}/api/profile/update/`,
+    updateData,
     { headers: { Authorization: `Bearer ${token}` } }
   )
     .then((res) => {
-      toast.success(res.data.msg);
-      setProfile(res.data.updatedUser);
-      setInputData(res.data.updatedUser);
+      console.log('Update response:', res.data);
+      toast.success(res.data.msg || res.data.message || 'Profile updated successfully');
+      
+      const updatedUser = res.data.updatedUser || res.data.user || res.data;
+      setProfile(updatedUser);
+      setInputData({
+        ...updatedUser,
+        fname: updatedUser.first_name || updatedUser.fname || '',
+        lname: updatedUser.last_name || updatedUser.lname || '',
+      });
+      
+      // Update localStorage user data
+      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+      const newUserData = { ...currentUser, ...updatedUser };
+      localStorage.setItem('user', JSON.stringify(newUserData));
     })
     .catch((err) => {
-      console.error(err);
-      toast.error("Update failed");
+      console.error('Update error:', err);
+      console.error('Error response:', err.response);
+      const errorMsg = err.response?.data?.msg || err.response?.data?.message || err.response?.data?.error || 'Update failed';
+      toast.error(errorMsg);
     });
 };
 
