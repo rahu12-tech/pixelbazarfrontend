@@ -19,7 +19,7 @@ const Header = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]);
   const [activeIndex, setActiveIndex] = useState(false);
-  const { isLoggedIn, user, cartCount, logout: authLogout, updateCartCount } = useAuth();
+  const { isLoggedIn, user, cartCount, wishlistCount, logout: authLogout, updateCartCount, updateWishlistCount } = useAuth();
 
   const navigate = useNavigate();
 
@@ -47,8 +47,28 @@ const Header = () => {
       });
   };
 
+  const fetchWishlistCount = () => {
+    const token = localStorage.getItem("token");
+    if (!token || !isLoggedIn) {
+      updateWishlistCount(0);
+      return;
+    }
+
+    axios
+      .get(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/wishlist/`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => {
+        const wishlistItems = res.data.data || res.data.items || res.data || [];
+        updateWishlistCount(wishlistItems.length);
+      })
+      .catch((err) => {
+        console.error("Wishlist fetch failed:", err);
+        updateWishlistCount(0);
+      });
+  };
+
   useEffect(() => {
     fetchCartCount();
+    fetchWishlistCount();
   }, [isLoggedIn]);
 
   useEffect(() => {
@@ -56,8 +76,17 @@ const Header = () => {
       fetchCartCount();
     };
     
+    const handleWishlistUpdate = () => {
+      fetchWishlistCount();
+    };
+    
     window.addEventListener('cartUpdated', handleCartUpdate);
-    return () => window.removeEventListener('cartUpdated', handleCartUpdate);
+    window.addEventListener('wishlistUpdated', handleWishlistUpdate);
+    
+    return () => {
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+      window.removeEventListener('wishlistUpdated', handleWishlistUpdate);
+    };
   }, [isLoggedIn]);
 
 
@@ -71,7 +100,8 @@ const Header = () => {
   }, []);
 
 
-  const wishlistQty = useSelector((state) => state.wishlist.totalQty || 0);
+  // Use dynamic wishlist count from API instead of Redux
+  // const wishlistQty = useSelector((state) => state.wishlist.totalQty || 0);
 
   const filteredProducts = products.filter((item) => {
     const combined = `${item.product_brand || ""} ${item.product_name || ""} ${item.product_titel || ""} ${item.product_type || ""}`.toLowerCase();
@@ -168,7 +198,7 @@ const Header = () => {
               <CiHeart className="cursor-pointer" size={22} />
             </Link>
             <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">
-              {wishlistQty}
+              {wishlistCount}
             </span>
           </div>
 
@@ -254,7 +284,7 @@ const Header = () => {
               <CiHeart className="cursor-pointer" size={26} />
             </Link>
             <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">
-              {wishlistQty}
+              {wishlistCount}
             </span>
           </div>
           <div className="relative">

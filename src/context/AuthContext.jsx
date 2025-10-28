@@ -14,6 +14,7 @@ export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [cartCount, setCartCount] = useState(0);
+  const [wishlistCount, setWishlistCount] = useState(0);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -55,14 +56,20 @@ export const AuthProvider = ({ children }) => {
     setCartCount(count);
   };
 
+  const updateWishlistCount = (count) => {
+    setWishlistCount(count);
+  };
+
   return (
     <AuthContext.Provider value={{
       isLoggedIn,
       user,
       cartCount,
+      wishlistCount,
       login,
       logout,
-      updateCartCount
+      updateCartCount,
+      updateWishlistCount
     }}>
       {children}
     </AuthContext.Provider>

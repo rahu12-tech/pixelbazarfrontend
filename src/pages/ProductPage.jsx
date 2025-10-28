@@ -1,8 +1,11 @@
 import api from "../api/axiosConfig";
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { addToWishlist } from "../redux/wishlist/wishlistSlice";
 
 import { BiHeart } from "react-icons/bi";
+import { IoIosHeart } from "react-icons/io";
 import { BsEye } from "react-icons/bs";
 import { CgShoppingCart } from "react-icons/cg";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -11,9 +14,11 @@ export default function ProductPage() {
     const [selectedSize, setSelectedSize] = useState("M");
     const [quantity, setQuantity] = useState(2);
     const [selectedColor, setSelectedColor] = useState("red");
+    const [isInWishlist, setIsInWishlist] = useState(false);
     let location = useLocation();
     const [productdel, setproductdel] = useState(location.state || null);
     let navigate = useNavigate();
+    const dispatch = useDispatch();
     console.log(productdel)
 
     // ✅ If no product is passed in state
@@ -92,6 +97,39 @@ export default function ProductPage() {
             });
     };
 
+    const handleAddToWishlist = async (product) => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            toast.error("Please login to add to wishlist");
+            return;
+        }
+
+        try {
+            const res = await api.post('/api/wishlist/add/', {
+                product_id: product._id || product.id
+            });
+            
+            if (res.data.status === 200 || res.data.message) {
+                toast.success(res.data.message || "Added to wishlist!");
+                setIsInWishlist(true);
+                
+                // Also add to Redux store
+                dispatch(addToWishlist({
+                    id: product._id || product.id,
+                    name: product.product_name,
+                    price: product.product_price,
+                    img: product.product_img
+                }));
+                
+                // Trigger wishlist update event
+                window.dispatchEvent(new Event('wishlistUpdated'));
+            }
+        } catch (err) {
+            console.error('Wishlist error:', err);
+            toast.error(err.response?.data?.message || "Failed to add to wishlist");
+        }
+    };
+
     return (
         <>
             <div className="p-6 max-w-6xl mx-auto">
@@ -166,15 +204,31 @@ export default function ProductPage() {
                             {productdel?.product_warranty}
                         </p>
 
-                        {/* Quantity & Buy Now */}
+                        {/* Action Buttons */}
                         <div className="flex items-center gap-3 mb-6">
                             <button
                                 onClick={() => handleAddToCart(productdel)}
-                                className="bg-red-500 cursor-pointer text-white px-6 py-3 rounded-md hover:bg-red-600"
+                                className="bg-red-500 cursor-pointer text-white px-6 py-3 rounded-md hover:bg-red-600 flex items-center gap-2"
                             >
+                                <CgShoppingCart size={20} />
                                 Add To Cart
                             </button>
-                           
+                            
+                            <button
+                                onClick={() => handleAddToWishlist(productdel)}
+                                className={`border-2 px-4 py-3 rounded-md transition flex items-center gap-2 ${
+                                    isInWishlist 
+                                        ? 'border-red-500 bg-red-50 text-red-600' 
+                                        : 'border-gray-300 hover:border-red-500 hover:text-red-500'
+                                }`}
+                            >
+                                {isInWishlist ? (
+                                    <IoIosHeart className="text-red-500" size={20} />
+                                ) : (
+                                    <BiHeart size={20} />
+                                )}
+                                {isInWishlist ? 'In Wishlist' : 'Add to Wishlist'}
+                            </button>
                         </div>
 
                         <div className="mb-3">
