@@ -116,7 +116,7 @@ const handleSignup = async (e) => {
         location: formData.location,
       });
 
-      if (data.msg === "successfull") {
+      if (data.msg === "User created successfully") {
         setMessage("Account created successfully! Please login.");
         setOtpSent(false);
         setFormData({ name: "", email: "", password: "", location: { lat: null, lng: null } });
