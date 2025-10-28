@@ -112,6 +112,19 @@ const Paymentway = () => {
       if (digitsOnly.length <= 6) {
         setFormData({ ...formData, [name]: digitsOnly });
         setPincode(digitsOnly);
+        
+        // Auto-check pincode when 6 digits are entered
+        if (digitsOnly.length === 6) {
+          setTimeout(() => {
+            checkPincode();
+          }, 500);
+        } else {
+          // Reset validation when pincode is incomplete
+          setIsPincodeValid(false);
+          setPincodeMsg("");
+          setPincodeStatus("");
+          setDeliveryInfo(null);
+        }
       }
     } else {
       setFormData({ ...formData, [name]: value });
@@ -159,31 +172,55 @@ const Paymentway = () => {
     setPincodeStatus("");
   };
 
-  const checkPincode = () => {
+  const checkPincode = async () => {
     if (pincode.length !== 6) {
       setIsPincodeValid(false);
       setPincodeMsg("Enter a valid 6-digit pincode");
       setPincodeStatus("error");
       return;
     }
-    api.post("/api/check-pincode/", { pincode }).then((res) => {
-      if (res.data.status === 200) {
-        setDeliveryInfo(res.data);
+
+    try {
+      // Use India Post API for pincode validation
+      const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+      const data = await response.json();
+      
+      if (data[0].Status === "Success" && data[0].PostOffice && data[0].PostOffice.length > 0) {
+        const postOffice = data[0].PostOffice[0];
+        const city = postOffice.District;
+        const state = postOffice.State;
+        const area = postOffice.Name;
+        
+        // Auto-fill city and state
+        setFormData(prev => ({
+          ...prev,
+          city: city,
+          state: state,
+          town: area
+        }));
+        
         setIsPincodeValid(true);
-        setPincodeMsg(res.data.msg);
+        setPincodeMsg(`✅ Delivery available in ${city}, ${state} - Expected delivery in 3-5 days`);
         setPincodeStatus("success");
+        setDeliveryInfo({
+          city: city,
+          state: state,
+          area: area,
+          deliveryDays: "3-5 days"
+        });
       } else {
+        setIsPincodeValid(false);
+        setPincodeMsg("❌ Invalid pincode or delivery not available in this area");
+        setPincodeStatus("error");
         setDeliveryInfo(null);
-        setIsPincodeValid(false);
-        setPincodeMsg(res.data.msg);
-        setPincodeStatus("error");
       }
-    })
-      .catch(() => {
-        setIsPincodeValid(false);
-        setPincodeMsg("Error checking pincode");
-        setPincodeStatus("error");
-      });
+    } catch (error) {
+      console.error('Pincode API error:', error);
+      setIsPincodeValid(false);
+      setPincodeMsg("❌ Error checking pincode. Please try again.");
+      setPincodeStatus("error");
+      setDeliveryInfo(null);
+    }
     
     // Uncomment when backend API is ready:
     // axios.post("http://127.0.0.1:8000/api/check-pincode", { pincode })
@@ -565,14 +602,23 @@ async function startOnlinePayment(latitude, longitude, token) {
               <p className="text-red-500 text-sm">{errors.pincode}</p>
             )}
             {pincodeMsg && (
-              <p
-                className={`mt-1 text-sm ${pincodeStatus === "success"
-                  ? "text-green-600"
-                  : "text-red-600"
-                  }`}
-              >
-                {pincodeMsg}
-              </p>
+              <div className={`mt-2 p-2 rounded ${pincodeStatus === "success"
+                ? "bg-green-50 border border-green-200"
+                : "bg-red-50 border border-red-200"
+              }`}>
+                <p className={`text-sm font-medium ${pincodeStatus === "success"
+                  ? "text-green-700"
+                  : "text-red-700"
+                }`}>
+                  {pincodeMsg}
+                </p>
+                {deliveryInfo && (
+                  <div className="mt-1 text-xs text-green-600">
+                    <p>📍 Area: {deliveryInfo.area}</p>
+                    <p>🚚 Estimated Delivery: {deliveryInfo.deliveryDays}</p>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 

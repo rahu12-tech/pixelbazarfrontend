@@ -228,11 +228,22 @@ const Header = () => {
               )}
             </div>
           ) : (
-            <Link to="/signup">
-              <button className="px-4 py-2 bg-blue-500 text-white rounded-md cursor-pointer">
-                Login
-              </button>
-            </Link>
+            <div className="flex gap-2">
+              <Link to="/signup">
+                <button className="px-4 py-2 bg-blue-500 text-white rounded-md cursor-pointer hover:bg-blue-600 transition">
+                  Login
+                </button>
+              </Link>
+              <a 
+                href={`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/admin/`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <button className="px-4 py-2 bg-red-500 text-white rounded-md cursor-pointer hover:bg-red-600 transition">
+                  Admin
+                </button>
+              </a>
+            </div>
           )}
         </div>
 
@@ -274,7 +285,18 @@ const Header = () => {
             <Link to="/about" className="block text-lg font-medium text-black hover:text-gray-600" onClick={() => setMenuOpen(false)}>About</Link>
             <Link to="/contact" className="block text-lg font-medium text-black hover:text-gray-600" onClick={() => setMenuOpen(false)}>Contact</Link>
             {!isLoggedIn && (
-              <Link to="/signup" className="block text-lg font-medium text-black hover:text-gray-600" onClick={() => setMenuOpen(false)}>Sign Up</Link>
+              <>
+                <Link to="/signup" className="block text-lg font-medium text-black hover:text-gray-600" onClick={() => setMenuOpen(false)}>Login</Link>
+                <a 
+                  href={`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/admin/`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-lg font-medium text-red-600 hover:text-red-700"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Admin Panel
+                </a>
+              </>
             )}
           </motion.div>
         )}
