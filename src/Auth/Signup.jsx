@@ -117,11 +117,14 @@ const handleSignup = async (e) => {
       });
 
       if (data.msg === "User created successfully") {
-        setMessage("Account created successfully! Please login.");
-        setOtpSent(false);
-        setFormData({ name: "", email: "", password: "", location: { lat: null, lng: null } });
+        setMessage("Account created successfully!");
         setErrors({});
-        setIsLogin(true);
+        setOtpSent(false);
+
+        // ✅ redirect to login page after 1 second
+        setTimeout(() => {
+          navigate("/login");
+        }, 1000);
       } else {
         setErrors({ otp: data.msg });
       }
