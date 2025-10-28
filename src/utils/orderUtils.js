@@ -21,7 +21,7 @@ export const normalizeOrderData = (orders) => {
         if (img.startsWith('/media/')) return `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}${img}`;
         if (img.startsWith('media/')) return `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/${img}`;
         return `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/media/${img}`;
-      })()
+      })(),
       quantity: Number(product.quantity || product.qty || 1),
       product_return: product.product_return || product.return_policy || '0'
     })),
