@@ -218,10 +218,24 @@ function Orderhistory() {
                             <div className="border-t border-b border-gray-200 py-2 mb-3 space-y-2">
                                 {(order.products && order.products.length > 0) ? order.products.map((prod, index) => {
                                     console.log('🔍 Product Data:', prod);
-                                    const imageUrl = prod.product_img || prod.image || prod.img;
-                                    const finalImageUrl = imageUrl?.startsWith('http') ? imageUrl : 
-                                        imageUrl ? `${import.meta.env.VITE_API_URL}${imageUrl}` : 
-                                        'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=150&h=150&fit=crop';
+                                    // Use pre-formatted image URL from orderUtils or construct it
+                                    const finalImageUrl = prod.image_url || 
+                                        (() => {
+                                            const imageUrl = prod.product_img || prod.image || prod.img;
+                                            if (!imageUrl) return 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=150&h=150&fit=crop';
+                                            if (imageUrl.startsWith('http')) return imageUrl;
+                                            if (imageUrl.startsWith('/media/')) return `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}${imageUrl}`;
+                                            if (imageUrl.startsWith('media/')) return `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/${imageUrl}`;
+                                            return `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/media/${imageUrl}`;
+                                        })();
+                                    
+                                    console.log('🔍 Product Image Data:', {
+                                        product_img: prod.product_img,
+                                        image: prod.image,
+                                        img: prod.img,
+                                        image_url: prod.image_url,
+                                        finalImageUrl
+                                    });
                                     
                                     return (
                                         <div key={prod._id || prod.id || index} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">

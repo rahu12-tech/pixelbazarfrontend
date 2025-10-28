@@ -13,6 +13,15 @@ export const normalizeOrderData = (orders) => {
       product_name: product.product_name || product.name || product.title || 'Product',
       product_price: Number(product.product_price || product.price || 0),
       product_img: product.product_img || product.image || product.img || '',
+      // Ensure image URL is properly formatted
+      image_url: (() => {
+        const img = product.product_img || product.image || product.img;
+        if (!img) return '';
+        if (img.startsWith('http')) return img;
+        if (img.startsWith('/media/')) return `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}${img}`;
+        if (img.startsWith('media/')) return `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/${img}`;
+        return `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/media/${img}`;
+      })()
       quantity: Number(product.quantity || product.qty || 1),
       product_return: product.product_return || product.return_policy || '0'
     })),
