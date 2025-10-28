@@ -48,7 +48,7 @@ export default function FlashSalesPage() {
         else if (res.data.products) data = res.data.products;
         else if (res.data.data) data = res.data.data;
         
-        const flashSaleProducts = Array.isArray(data) ? data.filter(p => p.is_flash_sale || p.flash_sale).slice(0, 8) : [];
+        const flashSaleProducts = Array.isArray(data) ? data.filter(p => p.is_flash_sale === true).slice(0, 8) : [];
         setProductApi(flashSaleProducts);
       } catch (err) {
         console.error("FlashSale products error:", err);
@@ -150,9 +150,9 @@ export default function FlashSalesPage() {
           return (
             <SwiperSlide key={product._id}>
               <div className="border border-gray-300 rounded-lg p-4 flex flex-col items-center relative group">
-                {product.discount && (
+                {product.product_discount && (
                   <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-                    {product.discount}
+                    {product.product_discount}%
                   </span>
                 )}
                 <button

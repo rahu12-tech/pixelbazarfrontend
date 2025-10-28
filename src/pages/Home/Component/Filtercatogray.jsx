@@ -260,7 +260,12 @@ function Filtercatogray() {
 
       {/* Products */}
       <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-4 md:ml-4">
-        {products.length > 0 ? products.map(prod => (
+        {/* Show message when no filters applied */}
+        {Object.values(filters).every(arr => arr.length === 0) && !search ? (
+          <div className="col-span-full text-center py-12">
+            <p className="text-gray-500 text-lg">Please select filters to view products</p>
+          </div>
+        ) : products.length > 0 ? products.map(prod => (
           <div key={prod._id} className="border border-gray-300 rounded-lg p-2 md:p-4 flex flex-col items-center relative group max-w-88 max-h-80">
             {prod.product_discount && <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">{prod.product_discount}</span>}
             <button
@@ -293,7 +298,9 @@ function Filtercatogray() {
             </button>
           </div>
         )) : (
-          <p className="text-center text-gray-500 col-span-full">No products found</p>
+          <div className="col-span-full text-center py-12">
+            <p className="text-gray-500 text-lg">No products found matching your filters</p>
+          </div>
         )}
       </div>
     </div>

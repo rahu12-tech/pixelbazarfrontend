@@ -95,7 +95,7 @@ const NewArrival = () => {
                         <div className="absolute inset-0 bg-black/30"></div>
                         <div className="absolute bottom-4 left-4 text-white z-10 transition-transform duration-500 md:group-hover:scale-110">
                             <h3 className="text-lg font-semibold">{featuredProducts[0].product_name}</h3>
-                            <p className="text-sm mb-2">{featuredProducts[0].product_description || 'Featured product with amazing features'}</p>
+                            <p className="text-sm mb-2">{featuredProducts[0].product_des || 'Featured product with amazing features'}</p>
                             <button 
                                 onClick={() => handleViewDetails(featuredProducts[0])}
                                 className="bg-white text-black px-4 py-1 text-sm rounded hover:bg-gray-200"
@@ -133,7 +133,7 @@ const NewArrival = () => {
                             <div className="absolute inset-0 bg-black/25"></div>
                             <div className="absolute bottom-4 left-4 text-white z-10 transition-transform duration-500 md:group-hover:scale-110">
                                 <h3 className="text-lg font-semibold">{product.product_name}</h3>
-                                <p className="text-sm mb-2">{product.product_description || 'Amazing product with great features'}</p>
+                                <p className="text-sm mb-2">{product.product_des || 'Amazing product with great features'}</p>
                                 <button 
                                     onClick={() => handleViewDetails(product)}
                                     className="bg-white text-black px-4 py-1 text-sm rounded hover:bg-gray-200"

@@ -18,13 +18,24 @@ const ExploreMoreProduct = () => {
     const [products, setProducts] = useState([]);
 
     useEffect(() => {
-        API.get("/api/products/")
-            .then((res) => {
-                const data = res.data.productdata || res.data;
-                console.log(data);
-                setProducts(data);
-            })
-            .catch((err) => console.log(err));
+        const fetchProducts = async () => {
+            try {
+                const res = await API.get("/api/products/");
+                console.log('ExploreMore API response:', res.data);
+                
+                let data = res.data;
+                if (res.data.productdata) data = res.data.productdata;
+                else if (res.data.products) data = res.data.products;
+                else if (res.data.data) data = res.data.data;
+                
+                setProducts(Array.isArray(data) ? data : []);
+            } catch (err) {
+                console.error('ExploreMore products error:', err);
+                setProducts([]);
+            }
+        };
+        
+        fetchProducts();
     }, []);
 
     const handleAddToCart = async (product) => {
@@ -117,10 +128,17 @@ const ExploreMoreProduct = () => {
 
                         <div className="w-36 h-32 rounded-md mb-3 flex items-center justify-center">
                             <img
-                                src={product.product_img}
-                                alt={product.name}
+                                src={product.product_img?.startsWith('http') ? 
+                                    product.product_img : 
+                                    `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}${product.product_img}`
+                                }
+                                alt={product.product_name}
                                 onClick={() => { datial(product) }}
                                 className="w-full h-full mx-auto object-contain rounded-sm transform transition duration-500 hover:scale-110 hover:-translate-y-0.5 cursor-pointer"
+                                onError={(e) => {
+                                    e.target.src = 'https://via.placeholder.com/150x150?text=' + 
+                                        encodeURIComponent(product.product_name || 'Product');
+                                }}
                             />
                         </div>
 
@@ -160,7 +178,12 @@ const ExploreMoreProduct = () => {
 
             <div className="mt-16 text-center">
                 <button
-                    onClick={() => navigate('/products')}
+                    onClick={() => navigate('/products', { 
+                        state: { 
+                            products: products,
+                            category: 'All Products'
+                        } 
+                    })}
                     className="px-4 py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 transition"
                 >
                     View All Products

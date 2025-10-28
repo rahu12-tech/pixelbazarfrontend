@@ -23,13 +23,35 @@ export default function ProductsPage() {
           setProducts(passedProducts);
           setFilteredProducts(passedProducts);
         } else {
-          const res = await axios.get('http://127.0.0.1:8000/api/products/');
-          let data = res.data;
-          if (res.data.productdata) data = res.data.productdata;
-          else if (res.data.products) data = res.data.products;
-          else if (res.data.data) data = res.data.data;
+          // Try multiple API endpoints
+          const baseURL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+          const endpoints = [
+            `${baseURL}/api/products/`,
+            `${baseURL}/products/`,
+            `${baseURL}/api/product/`
+          ];
           
-          setProducts(Array.isArray(data) ? data : []);
+          let data = [];
+          for (const endpoint of endpoints) {
+            try {
+              const res = await axios.get(endpoint);
+              console.log(`ProductsPage ${endpoint} response:`, res.data);
+              
+              let responseData = res.data;
+              if (res.data.productdata) responseData = res.data.productdata;
+              else if (res.data.products) responseData = res.data.products;
+              else if (res.data.data) responseData = res.data.data;
+              
+              if (Array.isArray(responseData) && responseData.length > 0) {
+                data = responseData;
+                break;
+              }
+            } catch (err) {
+              console.log(`${endpoint} failed:`, err.message);
+            }
+          }
+          
+          setProducts(data);
           
           // Apply filters if provided
           if (filter) {
@@ -40,7 +62,7 @@ export default function ProductsPage() {
             });
             setFilteredProducts(filtered);
           } else {
-            setFilteredProducts(Array.isArray(data) ? data : []);
+            setFilteredProducts(data);
           }
         }
       } catch (err) {
@@ -69,7 +91,8 @@ export default function ProductsPage() {
     };
 
     try {
-      const res = await axios.post("http://127.0.0.1:8000/api/cart/add/", cartData, {
+      const baseURL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+      const res = await axios.post(`${baseURL}/api/cart/add/`, cartData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -138,7 +161,7 @@ export default function ProductsPage() {
             <img
               src={product.product_img?.startsWith('http') ? 
                 product.product_img : 
-                `http://127.0.0.1:8000${product.product_img}`
+                `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}${product.product_img}`
               }
               alt={product.product_name}
               onClick={() => goToDetail(product)}
