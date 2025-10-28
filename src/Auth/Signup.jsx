@@ -102,36 +102,67 @@ const handleSignup = async (e) => {
     () => alert("Please allow location access!")
   );
 };
+const handleVerifyOtp = async (e) => {
+  e.preventDefault();
+  if (!otp.trim()) return setErrors({ otp: "OTP is required" });
 
+  try {
+    const { data } = await axios.post(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/verify-otp/`, {
+      email: formData.email,
+      otp,
+      password: formData.password,
+      name: formData.name,
+      location: formData.location,
+    });
 
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    if (!otp.trim()) return setErrors({ otp: "OTP is required" });
+    if (data.msg === "User created successfully") {
+      setMessage("✅ Account created successfully! Please log in now.");
+      setErrors({});
+      
+      // ✅ Hide OTP form, show login form
+      setOtpSent(false);
+      setIsLogin(true);
 
-    try {
-      const { data } = await axios.post(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/verify-otp/`, {
-        email: formData.email,
-        otp,
-        password: formData.password,
-        location: formData.location,
-      });
+      // ✅ Clear OTP field only
+      setOtp("");
 
-      if (data.msg === "User created successfully") {
-        setMessage("Account created successfully!");
-        setErrors({});
-        setOtpSent(false);
-
-        // ✅ redirect to login page after 1 second
-        setTimeout(() => {
-          navigate("/login");
-        }, 1000);
-      } else {
-        setErrors({ otp: data.msg });
-      }
-    } catch (err) {
-      setErrors({ general: "Invalid OTP. Please try again." });
+      // ✅ Optional: reset name/password so login is clean
+      setFormData({ ...formData, name: "", password: "" });
+    } else {
+      setErrors({ otp: data.msg });
     }
-  };
+  } catch (err) {
+    console.error("OTP verify error:", err);
+    setErrors({ general: "Invalid OTP. Please try again." });
+  }
+};
+
+
+  // const handleVerifyOtp = async (e) => {
+  //   e.preventDefault();
+  //   if (!otp.trim()) return setErrors({ otp: "OTP is required" });
+
+  //   try {
+  //     const { data } = await axios.post(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/verify-otp/`, {
+  //       email: formData.email,
+  //       otp,
+  //       password: formData.password,
+  //       location: formData.location,
+  //     });
+
+  //     if (data.msg === "User created successfully") {
+  //       setMessage("Account created successfully! Please login.");
+  //       setOtpSent(false);
+  //       setErrors({});
+  //       setIsLogin(true);
+  //       setFormData({ name: "", email: "", password: "", location: { lat: null, lng: null } });
+  //     } else {
+  //       setErrors({ otp: data.msg });
+  //     }
+  //   } catch (err) {
+  //     setErrors({ general: "Invalid OTP. Please try again." });
+  //   }
+  // };
 
   // ---------------- Login ----------------
   const handleLogin = async (e) => {
