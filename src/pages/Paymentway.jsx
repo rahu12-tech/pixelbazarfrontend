@@ -141,9 +141,9 @@ const Paymentway = () => {
     setCouponLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await api.post('/api/apply-coupon/', {
-        coupon_code: couponCode,
-        order_amount: calculateTotal()
+      const res = await api.post('/api/coupons/apply/', {
+        code: couponCode,
+        cartTotal: calculateTotal()
       });
 
       if (res.data.success) {

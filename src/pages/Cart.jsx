@@ -50,7 +50,7 @@ export default function CartPage() {
       const token = localStorage.getItem('token');
       const res = await api.post('/api/coupons/apply/', {
         code: coupon,
-        orderAmount: subtotal
+        cartTotal: subtotal
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
