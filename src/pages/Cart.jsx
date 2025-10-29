@@ -55,10 +55,12 @@ export default function CartPage() {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      if (res.data.success) {
-        const discountAmount = res.data.discount;
+      console.log('Coupon API response:', res.data);
+      
+      if (res.data.success || res.data.discount) {
+        const discountAmount = res.data.discount || res.data.discount_amount || 0;
         setDiscount(discountAmount);
-        setAppliedCoupon(res.data.coupon);
+        setAppliedCoupon({ code: coupon, ...res.data.coupon });
         toast.success(`Coupon applied! You saved ₹${discountAmount}`);
         setCoupon("");
       } else {

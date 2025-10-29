@@ -146,10 +146,13 @@ const Paymentway = () => {
         cartTotal: calculateTotal()
       });
 
-      if (res.data.success) {
-        setAppliedCoupon(res.data.coupon);
-        setCouponDiscount(res.data.discount_amount);
-        setPincodeMsg(`Coupon applied! You saved ₹${res.data.discount_amount}`);
+      console.log('Coupon API response:', res.data);
+      
+      if (res.data.success || res.data.discount) {
+        const discount = res.data.discount || res.data.discount_amount || 0;
+        setAppliedCoupon({ code: couponCode, ...res.data.coupon });
+        setCouponDiscount(discount);
+        setPincodeMsg(`Coupon applied! You saved ₹${discount}`);
         setPincodeStatus("success");
       } else {
         setPincodeMsg(res.data.message || "Invalid coupon code");
