@@ -168,7 +168,7 @@ const ExploreMoreProduct = () => {
                         {/* Add to Cart */}
                         <button
                             onClick={() => handleAddToCart(product)}
-                            className="mt-3 w-full bg-black text-white text-sm py-2 rounded opacity-0 group-hover:opacity-100 cursor-pointer transition"
+                            className="mt-3 w-full bg-black text-white text-sm py-2 rounded opacity-100 md:opacity-0 md:group-hover:opacity-100 cursor-pointer transition"
                         >
                             Add to Cart
                         </button>

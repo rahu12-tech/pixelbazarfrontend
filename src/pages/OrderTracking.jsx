@@ -43,8 +43,12 @@ const OrderTracking = () => {
 
   const handleTrackOrder = () => {
     if (trackingId.trim()) {
-      navigate(`/track-order/${trackingId}`);
-      fetchOrderDetails(trackingId);
+      // If same order ID, just refresh the data
+      if (trackingId === orderId) {
+        fetchOrderDetails(trackingId);
+      } else {
+        navigate(`/track-order/${trackingId}`);
+      }
     }
   };
 

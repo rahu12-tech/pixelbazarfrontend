@@ -379,7 +379,30 @@ function Orderhistory() {
                             <div className="flex flex-col sm:flex-row gap-3">
                                 {/* Track Order */}
                                 <button
-                                    onClick={() => navigate(`/track-order/${order.order_id || order._id}`)}
+                                    onClick={() => {
+                                        // Refresh order data instead of navigating
+                                        const token = localStorage.getItem('token');
+                                        if (token) {
+                                            api.get('/api/orders/')
+                                                .then((res) => {
+                                                    let orders = [];
+                                                    if (res.data.status === 200 && res.data.orders) {
+                                                        orders = res.data.orders;
+                                                    } else if (res.data.orders) {
+                                                        orders = res.data.orders;
+                                                    } else if (Array.isArray(res.data)) {
+                                                        orders = res.data;
+                                                    }
+                                                    const normalizedOrders = normalizeOrderData(orders);
+                                                    setOrderdata(normalizedOrders);
+                                                    toast.success('Order status refreshed!');
+                                                })
+                                                .catch((err) => {
+                                                    console.error('Refresh error:', err);
+                                                    toast.error('Failed to refresh order status');
+                                                });
+                                        }
+                                    }}
                                     className="w-full sm:w-auto p-2 px-6 py-2 rounded mt-3 font-semibold bg-red-500 hover:bg-red-600 text-white"
                                 >
                                     Track Order
