@@ -96,7 +96,9 @@ const handleSignup = async (e) => {
           setErrors({ general: data.msg });
         }
       } catch (err) {
-        setErrors({ general: "Server error." });
+        console.error('Signup error:', err);
+        const errorMsg = err.response?.data?.msg || err.response?.data?.message || "Server error.";
+        setErrors({ general: errorMsg });
       }
     },
     () => alert("Please allow location access!")

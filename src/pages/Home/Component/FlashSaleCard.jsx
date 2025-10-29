@@ -69,9 +69,12 @@ export default function FlashSalesPage() {
     }
 
     const cartData = {
-      product_id: product._id,
+      product_id: product._id || product.id,
       quantity: 1
     };
+    
+    console.log('Flash Sale - Adding to cart:', cartData);
+    console.log('Product data:', product);
 
     try {
       const res = await API.post("/api/cart/add/", cartData, {
