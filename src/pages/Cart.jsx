@@ -46,34 +46,28 @@ export default function CartPage() {
       return;
     }
 
-    // Temporary client-side validation until backend endpoint is ready
-    const validCoupons = {
-      'WELCOME10': { discount: 10, minAmount: 400, maxDiscount: 100, title: 'Welcome Offer' },
-      'SAVE20': { discount: 20, minAmount: 1000, maxDiscount: 200, title: 'Big Save' },
-      'FIRST50': { discount: 50, minAmount: 500, maxDiscount: 250, title: 'First Order' }
-    };
+    try {
+      const token = localStorage.getItem('token');
+      const res = await api.post('/api/coupons/apply/', {
+        code: coupon,
+        orderAmount: subtotal
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-    const couponData = validCoupons[coupon.toUpperCase()];
-    
-    if (!couponData) {
-      toast.error("Invalid coupon code");
-      return;
+      if (res.data.success) {
+        const discountAmount = res.data.discount;
+        setDiscount(discountAmount);
+        setAppliedCoupon(res.data.coupon);
+        toast.success(`Coupon applied! You saved ₹${discountAmount}`);
+        setCoupon("");
+      } else {
+        toast.error(res.data.message || "Invalid coupon code");
+      }
+    } catch (err) {
+      console.error('Coupon apply error:', err);
+      toast.error(err.response?.data?.message || "Failed to apply coupon");
     }
-
-    if (subtotal < couponData.minAmount) {
-      toast.error(`Minimum order amount should be ₹${couponData.minAmount}`);
-      return;
-    }
-
-    const discountAmount = Math.min(
-      (subtotal * couponData.discount) / 100,
-      couponData.maxDiscount
-    );
-
-    setDiscount(discountAmount);
-    setAppliedCoupon({ code: coupon.toUpperCase(), ...couponData });
-    toast.success(`Coupon applied! You saved ₹${discountAmount}`);
-    setCoupon("");
   };
 
   const removeCoupon = () => {
