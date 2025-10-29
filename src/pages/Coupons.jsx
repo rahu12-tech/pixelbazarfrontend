@@ -12,7 +12,7 @@ export default function Coupons() {
     const fetchCoupons = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('http://127.0.0.1:8000/api/coupons/', {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/coupons/`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setCoupons(res.data.coupons || res.data || []);

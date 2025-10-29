@@ -11,6 +11,8 @@ import toast, { Toaster } from "react-hot-toast";
 export default function CartPage() {
   const [cartdata, setCartData] = useState([]);
   const [coupon, setCoupon] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [discount, setDiscount] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -20,7 +22,7 @@ export default function CartPage() {
 
   const totalDelivery = cartdata.reduce((acc, item) => acc + Number(item.delivery?.deliveryCharge || 0), 0);
 
-  const grandtotal = subtotal + totalDelivery;
+  const grandtotal = subtotal + totalDelivery - discount;
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -38,9 +40,40 @@ export default function CartPage() {
       });
   }, []);
 
-  const handleApplyCoupon = () => {
-    alert("Coupon applied: " + coupon);
-    setCoupon("");
+  const handleApplyCoupon = async () => {
+    if (!coupon.trim()) {
+      toast.error("Please enter a coupon code");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await api.post('/api/coupons/apply/', {
+        code: coupon,
+        orderAmount: subtotal
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.data.success) {
+        const discountAmount = res.data.discount;
+        setDiscount(discountAmount);
+        setAppliedCoupon(res.data.coupon);
+        toast.success(`Coupon applied! You saved ₹${discountAmount}`);
+        setCoupon("");
+      } else {
+        toast.error(res.data.message || "Invalid coupon code");
+      }
+    } catch (err) {
+      console.error('Coupon apply error:', err);
+      toast.error(err.response?.data?.message || "Failed to apply coupon");
+    }
+  };
+
+  const removeCoupon = () => {
+    setDiscount(0);
+    setAppliedCoupon(null);
+    toast.success("Coupon removed");
   };
 
   const handleRemoveItem = (item) => {
@@ -157,21 +190,39 @@ export default function CartPage() {
           <div className="space-y-6">
             <div className="border p-1 md:p-6 rounded-lg shadow bg-white">
               <h3 className="text-sm md:text-xl font-bold mb-4">Apply Coupon</h3>
-              <div className="flex gap-3">
-                <input
-                  type="text"
-                  value={coupon}
-                  onChange={(e) => setCoupon(e.target.value)}
-                  placeholder="Coupon Code"
-                  className="flex-1 border rounded md:px-4 md:py-2 placeholder:ps-2 focus:ring-2 focus:ring-red-400 outline-none"
-                />
-                <button
-                  onClick={handleApplyCoupon}
-                  className="bg-red-500 text-white px-2 text-sm md:text-xl md:px-5 md:py-2 rounded hover:bg-red-600"
-                >
-                  Apply
-                </button>
-              </div>
+              
+              {appliedCoupon ? (
+                <div className="bg-green-50 border border-green-200 rounded p-3">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-semibold text-green-800">{appliedCoupon.code}</p>
+                      <p className="text-sm text-green-600">You saved ₹{discount}</p>
+                    </div>
+                    <button
+                      onClick={removeCoupon}
+                      className="text-red-500 hover:text-red-700 text-sm"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    value={coupon}
+                    onChange={(e) => setCoupon(e.target.value)}
+                    placeholder="Coupon Code"
+                    className="flex-1 border rounded md:px-4 md:py-2 placeholder:ps-2 focus:ring-2 focus:ring-red-400 outline-none"
+                  />
+                  <button
+                    onClick={handleApplyCoupon}
+                    className="bg-red-500 text-white px-2 text-sm md:text-xl md:px-5 md:py-2 rounded hover:bg-red-600"
+                  >
+                    Apply
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="border p-2 md:p-6 rounded-lg shadow bg-white">
@@ -186,6 +237,12 @@ export default function CartPage() {
                   ₹{totalDelivery.toFixed(2)}
                 </span>
               </div>
+              {discount > 0 && (
+                <div className="flex justify-between mb-3 text-green-600">
+                  <span>Discount:</span>
+                  <span className="font-medium">-₹{discount.toFixed(2)}</span>
+                </div>
+              )}
               <hr className="my-4" />
               <div className="flex justify-between font-bold text-xl mb-6 text-gray-800">
                 <span>Grand Total:</span>
