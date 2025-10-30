@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import jsPDF from "jspdf";
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
 import { normalizeOrderData } from '../utils/orderUtils';
 
 function Orderhistory() {
