@@ -182,7 +182,10 @@ function Orderhistory() {
                     const isDelivered = order.tracking?.status === "Delivered";
 
                     // Return eligibility check
-                    const canReturn = isDelivered && order.products.some((prod) => {
+                    const hasActiveReturn = order.return_requests && order.return_requests.length > 0;
+                    const latestReturn = hasActiveReturn ? order.return_requests[0] : null;
+                    
+                    const canReturn = isDelivered && !hasActiveReturn && order.products.some((prod) => {
                         if (!prod.product_return || prod.product_return.toLowerCase() === "0") return false;
 
                         const deliveryDate = new Date(order.tracking?.updatedAt || order.createdAt);
@@ -194,6 +197,9 @@ function Orderhistory() {
 
                         return new Date() <= returnExpiry;
                     });
+                    
+                    // Can request return again only if previous was rejected
+                    const canReturnAgain = isDelivered && latestReturn && latestReturn.status === 'rejected';
 
                     return (
                         <div key={order._id} className={`relative rounded-lg p-3 md:p-4 shadow ${isDelivered ? "bg-gray-200" : "bg-white"}`}>
@@ -378,9 +384,19 @@ function Orderhistory() {
                             <div className="bg-gray-50 p-2 rounded text-gray-700 text-sm">
                                 <p>Order placed successfully.</p>
                                 <p className="text-blue-600"> Tracking Status: {order.tracking?.status} (Updated on{" "} {new Date(order.tracking?.updatedAt).toLocaleString()})</p>
-                                {order.return?.status === "requested" && (<p className="text-orange-500"> Return Requested (Reason: {order.return?.reason})</p>)}
-                                {order.return?.status === 'approved' && (<p className="text-green-600">Return Approved ✅</p>)}
-                                {order.return?.status === "rejected" && (<p className="text-red-600">Return Rejected ❌</p>)}
+                                {hasActiveReturn && (
+                                    <div className="mt-2">
+                                        <p className={`font-medium ${
+                                            latestReturn.status === 'refund_completed' ? 'text-green-600' :
+                                            latestReturn.status === 'rejected' ? 'text-red-600' :
+                                            'text-orange-500'
+                                        }`}>
+                                            Return Status: {latestReturn.status.replace('_', ' ').toUpperCase()}
+                                        </p>
+                                        <p className="text-xs text-gray-500">Return ID: {latestReturn.return_id}</p>
+                                        {latestReturn.reason && <p className="text-xs text-gray-500">Reason: {latestReturn.reason}</p>}
+                                    </div>
+                                )}
                             </div>
 
                             {/* Buttons */}
@@ -431,33 +447,32 @@ function Orderhistory() {
                                     >
                                         Cancelled
                                     </button>
-                                ) : canReturn && !order.return?.status ? (
+                                ) : hasActiveReturn ? (
+                                    <button
+                                        onClick={() => navigate(`/return-tracking/${latestReturn.return_id}`)}
+                                        className={`w-full sm:w-auto p-2 px-6 py-2 rounded mt-3 font-semibold ${
+                                            latestReturn.status === 'refund_completed' ? 'bg-green-500 text-white' :
+                                            latestReturn.status === 'rejected' ? 'bg-red-500 text-white' :
+                                            'bg-blue-500 text-white hover:bg-blue-600'
+                                        }`}
+                                    >
+                                        {latestReturn.status === 'refund_completed' ? 'Refund Completed' :
+                                         latestReturn.status === 'rejected' ? 'Return Rejected' :
+                                         'Track Return'}
+                                    </button>
+                                ) : (canReturn || canReturnAgain) ? (
                                     <button
                                         onClick={() => { setSelectedOrder(order); setReturnModal(true); }}
                                         className="w-full sm:w-auto p-2 px-6 py-2 rounded mt-3 font-semibold bg-orange-500 hover:bg-orange-600 text-white"
                                     >
-                                        Return Order
-                                    </button>
-                                ) : order.return?.status === 'requested' ? (
-                                    <button
-                                        disabled
-                                        className="w-full sm:w-auto p-2 px-6 py-2 rounded mt-3 font-semibold bg-yellow-300 text-yellow-800 cursor-not-allowed"
-                                    >
-                                        Return Requested
-                                    </button>
-                                ) : order.return?.status === 'approved' ? (
-                                    <button
-                                        disabled
-                                        className="w-full sm:w-auto p-2 px-6 py-2 rounded mt-3 font-semibold bg-green-300 text-green-800 cursor-not-allowed"
-                                    >
-                                        Return Approved
+                                        {canReturnAgain ? 'Request Return Again' : 'Return Order'}
                                     </button>
                                 ) : (
                                     <button
                                         disabled
                                         className="w-full sm:w-auto p-2 px-6 py-2 rounded mt-3 font-semibold bg-gray-300 text-gray-500 cursor-not-allowed"
                                     >
-                                        Return Expired
+                                        Return Not Available
                                     </button>
                                 )}
 
