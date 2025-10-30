@@ -11,14 +11,14 @@ const ReturnTracking = () => {
   const [loading, setLoading] = useState(true);
 
   const returnSteps = [
-    { status: 'REQUESTED', icon: FaUndo, title: 'Return Requested', description: 'Return request submitted successfully' },
-    { status: 'APPROVED', icon: FaCheckCircle, title: 'Return Approved', description: 'Return request approved by admin' },
-    { status: 'PICKUP_SCHEDULED', icon: FaClock, title: 'Pickup Scheduled', description: 'Pickup scheduled with delivery partner' },
-    { status: 'PICKED_UP', icon: FaTruck, title: 'Picked Up', description: 'Product picked up from your location' },
-    { status: 'RECEIVED', icon: FaBox, title: 'Return Received', description: 'Product received at our warehouse' },
-    { status: 'QUALITY_CHECK', icon: FaCheckCircle, title: 'Quality Check', description: 'Product quality verification in progress' },
-    { status: 'REFUND_INITIATED', icon: FaCheckCircle, title: 'Refund Initiated', description: 'Refund process started' },
-    { status: 'REFUND_COMPLETED', icon: FaCheckCircle, title: 'Refund Completed', description: 'Refund credited to your account' }
+    { status: 'requested', icon: FaUndo, title: 'Return Requested', description: 'Return request submitted successfully' },
+    { status: 'approved', icon: FaCheckCircle, title: 'Return Approved', description: 'Return request approved by admin' },
+    { status: 'pickup_scheduled', icon: FaClock, title: 'Pickup Scheduled', description: 'Pickup scheduled with delivery partner' },
+    { status: 'picked_up', icon: FaTruck, title: 'Picked Up', description: 'Product picked up from your location' },
+    { status: 'received', icon: FaBox, title: 'Return Received', description: 'Product received at our warehouse' },
+    { status: 'quality_check', icon: FaCheckCircle, title: 'Quality Check', description: 'Product quality verification in progress' },
+    { status: 'refund_initiated', icon: FaCheckCircle, title: 'Refund Initiated', description: 'Refund process started' },
+    { status: 'refund_completed', icon: FaCheckCircle, title: 'Refund Completed', description: 'Refund credited to your account' }
   ];
 
   useEffect(() => {
@@ -185,11 +185,11 @@ const ReturnTracking = () => {
               <p><strong>Reason:</strong> {returnData.reason}</p>
               <p><strong>Status:</strong> 
                 <span className={`ml-2 px-2 py-1 rounded text-xs ${
-                  returnData.status === 'REFUND_COMPLETED' ? 'bg-green-100 text-green-800' :
-                  returnData.status === 'REJECTED' ? 'bg-red-100 text-red-800' :
+                  returnData.status === 'refund_completed' ? 'bg-green-100 text-green-800' :
+                  returnData.status === 'rejected' ? 'bg-red-100 text-red-800' :
                   'bg-yellow-100 text-yellow-800'
                 }`}>
-                  {returnData.status}
+                  {returnData.status.toUpperCase()}
                 </span>
               </p>
               <p><strong>Refund Amount:</strong> ₹{returnData.refund_amount}</p>
