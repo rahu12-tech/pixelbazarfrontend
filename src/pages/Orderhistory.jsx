@@ -135,19 +135,27 @@ function Orderhistory() {
         const token = localStorage.getItem("token");
 
         try {
-            const res = await api.put(
-                `/return/${selectedOrder._id}`,
-                reason === "other" ? { reason: "other", extraReason: extraText } : { reason }
+            const res = await api.post(
+                `/api/orders/${selectedOrder.order_id || selectedOrder._id}/return/`,
+                {
+                    reason: reason === "other" ? extraText : reason,
+                    order_id: selectedOrder.order_id || selectedOrder._id,
+                    products: selectedOrder.products
+                },
+                { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            toast.success(res.data.msg);
+            toast.success(res.data.message || "Return request submitted successfully!");
+            
+            // Update order data with return status
             setOrderdata(prev => prev.map(o =>
-                o._id === selectedOrder._id ? {
+                (o._id === selectedOrder._id || o.order_id === selectedOrder.order_id) ? {
                     ...o,
                     return: {
                         status: "requested",
                         reason: reason === "other" ? extraText : reason,
-                        updatedAt: new Date(),
+                        requestedAt: new Date().toISOString(),
+                        return_id: res.data.return_id || Date.now()
                     }
                 } : o
             ));
@@ -156,8 +164,8 @@ function Orderhistory() {
             setExtraText("");
             setReturnModal(false);
         } catch (err) {
-            console.error(err);
-            toast.error(err.response?.data?.msg || "Failed to request return");
+            console.error('Return request error:', err);
+            toast.error(err.response?.data?.message || "Failed to request return");
         }
     };
 
@@ -408,22 +416,48 @@ function Orderhistory() {
                                     Track Order
                                 </button>
 
-                                {/* Cancel */}
-                                <button
-                                    onClick={() => !isDelivered && OrderCancel(order.order_id)}
-                                    disabled={isDelivered || order.status === 'cancelled'}
-                                    className={`w-full sm:w-auto p-2 px-6 py-2 rounded mt-3 font-semibold ${(isDelivered || order.status === 'cancelled') ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-gray-300 hover:bg-gray-200 text-black"}`}
-                                >
-                                    {order.status === 'cancelled' ? 'Cancelled' : 'Cancel Order'}
-                                </button>
-
-                                {/* Return */}
-                                {canReturn && (
+                                {/* Cancel or Return Button Logic */}
+                                {!isDelivered && order.status !== 'cancelled' ? (
                                     <button
-                                        onClick={() => { setSelectedOrder(order); setReturnModal(true); }}
+                                        onClick={() => OrderCancel(order.order_id)}
                                         className="w-full sm:w-auto p-2 px-6 py-2 rounded mt-3 font-semibold bg-gray-300 hover:bg-gray-200 text-black"
                                     >
+                                        Cancel Order
+                                    </button>
+                                ) : order.status === 'cancelled' ? (
+                                    <button
+                                        disabled
+                                        className="w-full sm:w-auto p-2 px-6 py-2 rounded mt-3 font-semibold bg-gray-300 text-gray-500 cursor-not-allowed"
+                                    >
+                                        Cancelled
+                                    </button>
+                                ) : canReturn && !order.return?.status ? (
+                                    <button
+                                        onClick={() => { setSelectedOrder(order); setReturnModal(true); }}
+                                        className="w-full sm:w-auto p-2 px-6 py-2 rounded mt-3 font-semibold bg-orange-500 hover:bg-orange-600 text-white"
+                                    >
                                         Return Order
+                                    </button>
+                                ) : order.return?.status === 'requested' ? (
+                                    <button
+                                        disabled
+                                        className="w-full sm:w-auto p-2 px-6 py-2 rounded mt-3 font-semibold bg-yellow-300 text-yellow-800 cursor-not-allowed"
+                                    >
+                                        Return Requested
+                                    </button>
+                                ) : order.return?.status === 'approved' ? (
+                                    <button
+                                        disabled
+                                        className="w-full sm:w-auto p-2 px-6 py-2 rounded mt-3 font-semibold bg-green-300 text-green-800 cursor-not-allowed"
+                                    >
+                                        Return Approved
+                                    </button>
+                                ) : (
+                                    <button
+                                        disabled
+                                        className="w-full sm:w-auto p-2 px-6 py-2 rounded mt-3 font-semibold bg-gray-300 text-gray-500 cursor-not-allowed"
+                                    >
+                                        Return Expired
                                     </button>
                                 )}
 
