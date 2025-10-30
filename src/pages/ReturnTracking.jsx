@@ -119,17 +119,17 @@ const ReturnTracking = () => {
                 return (
                   <div key={index} className="flex flex-col items-center text-center max-w-xs">
                     <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 transition-all duration-300 ${
-                      isCompleted ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-400'
-                    } ${isCurrent ? 'ring-4 ring-green-200' : ''}`}>
+                      isCompleted ? 'bg-green-500 text-white shadow-lg' : 'bg-gray-200 text-gray-400'
+                    } ${isCurrent ? 'ring-4 ring-green-200 animate-pulse' : ''}`}>
                       <IconComponent size={24} />
                     </div>
-                    <h3 className={`font-medium text-sm mb-1 ${isCompleted ? 'text-green-600' : 'text-gray-400'}`}>
+                    <h3 className={`font-medium text-sm mb-1 ${isCompleted ? 'text-green-600 font-semibold' : 'text-gray-400'}`}>
                       {step.title}
                     </h3>
-                    <p className="text-xs text-gray-500 px-2">{step.description}</p>
-                    {isCurrent && (
+                    <p className={`text-xs px-2 ${isCompleted ? 'text-green-500' : 'text-gray-500'}`}>{step.description}</p>
+                    {isCompleted && (
                       <p className="text-xs text-green-600 mt-1 font-medium">
-                        Updated: {new Date(returnData.last_updated).toLocaleString()}
+                        ✅ {isCurrent ? `Updated: ${new Date(returnData.last_updated).toLocaleString()}` : 'Completed'}
                       </p>
                     )}
                   </div>
@@ -144,14 +144,25 @@ const ReturnTracking = () => {
               const eventDate = index === 0 ? returnData.created_at || returnData.last_updated : 
                                index === getCurrentStepIndex(returnData.status) ? returnData.last_updated : 
                                returnData.created_at;
+              const isCurrent = index === getCurrentStepIndex(returnData.status);
               
               return (
-                <div key={index} className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg">
-                  <div className="w-3 h-3 bg-green-500 rounded-full mt-2"></div>
+                <div key={index} className={`flex items-start space-x-4 p-4 rounded-lg transition-all duration-300 ${
+                  isCurrent ? 'bg-green-50 border-l-4 border-green-500' : 'bg-gray-50'
+                }`}>
+                  <div className={`w-3 h-3 rounded-full mt-2 ${
+                    isCurrent ? 'bg-green-500 animate-pulse' : 'bg-green-400'
+                  }`}></div>
                   <div>
-                    <h4 className="font-medium text-gray-800">{step.title}</h4>
-                    <p className="text-sm text-gray-600">{step.description}</p>
-                    <p className="text-xs text-gray-500">
+                    <h4 className={`font-medium ${
+                      isCurrent ? 'text-green-800' : 'text-gray-800'
+                    }`}>{step.title}</h4>
+                    <p className={`text-sm ${
+                      isCurrent ? 'text-green-700' : 'text-gray-600'
+                    }`}>{step.description}</p>
+                    <p className={`text-xs ${
+                      isCurrent ? 'text-green-600 font-medium' : 'text-gray-500'
+                    }`}>
                       {eventDate ? new Date(eventDate).toLocaleString() : 'Processing...'}
                     </p>
                   </div>
