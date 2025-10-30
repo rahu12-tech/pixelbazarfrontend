@@ -35,6 +35,8 @@ const ReturnTracking = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       
+      console.log('🔍 Return Data from API:', response.data);
+      console.log('🔍 Return Status:', response.data.status);
       setReturnData(response.data);
     } catch (error) {
       console.error('Error fetching return details:', error);
@@ -45,7 +47,10 @@ const ReturnTracking = () => {
   };
 
   const getCurrentStepIndex = (status) => {
-    return returnSteps.findIndex(step => step.status === status);
+    console.log('🔍 Finding step index for status:', status);
+    const index = returnSteps.findIndex(step => step.status === status);
+    console.log('🔍 Found step index:', index);
+    return index;
   };
 
   if (loading) {
