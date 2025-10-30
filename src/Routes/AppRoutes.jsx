@@ -17,6 +17,7 @@ import OrderSuccess from "../pages/OrderSuccess";
 import Orderhistory from "../pages/Orderhistory";
 import OrderTracking from "../pages/OrderTracking";
 import ReturnTracking from "../pages/ReturnTracking";
+import MyReturns from "../pages/MyReturns";
 import Notifications from "../pages/Notifications";
 import Coupons from "../pages/Coupons";
 import GiftCards from "../pages/GiftCards";
@@ -55,6 +56,7 @@ const AppRoutes = () => {
                     <Route path="/giftcards" element={<GiftCards />} />
                     <Route path="/track-order/:orderId?" element={<OrderTracking />} />
                     <Route path="/return-tracking/:returnId" element={<ReturnTracking />} />
+                    <Route path="/my-returns" element={<MyReturns />} />
                     <Route path="*" element={<Page404 />} />
                 </Route>
 

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import jsPDF from "jspdf";
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 import { normalizeOrderData } from '../utils/orderUtils';
 
 function Orderhistory() {
@@ -145,24 +146,38 @@ function Orderhistory() {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
+            console.log('Return request response:', res.data);
             toast.success(res.data.message || "Return request submitted successfully!");
             
-            // Update order data with return status
-            setOrderdata(prev => prev.map(o =>
-                (o._id === selectedOrder._id || o.order_id === selectedOrder.order_id) ? {
-                    ...o,
-                    return: {
+            // Update order data with return status - support multiple formats
+            setOrderdata(prev => prev.map(o => {
+                if (o._id === selectedOrder._id || o.order_id === selectedOrder.order_id) {
+                    const returnData = {
                         status: "requested",
                         reason: reason === "other" ? extraText : reason,
                         requestedAt: new Date().toISOString(),
-                        return_id: res.data.return_id || Date.now()
-                    }
-                } : o
-            ));
+                        return_id: res.data.return_id || `RET${Date.now()}`
+                    };
+                    
+                    return {
+                        ...o,
+                        // Add to multiple possible fields for compatibility
+                        return: returnData,
+                        return_status: returnData,
+                        return_requests: [returnData]
+                    };
+                }
+                return o;
+            }));
 
             setReason("");
             setExtraText("");
             setReturnModal(false);
+            
+            // Refresh page data to get latest return info
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
         } catch (err) {
             console.error('Return request error:', err);
             toast.error(err.response?.data?.message || "Failed to request return");
@@ -181,9 +196,22 @@ function Orderhistory() {
                     const currentStepIndex = statusSteps.indexOf(order.tracking?.status || "Order Placed");
                     const isDelivered = order.tracking?.status === "Delivered";
 
-                    // Return eligibility check
-                    const hasActiveReturn = order.return_requests && order.return_requests.length > 0;
-                    const latestReturn = hasActiveReturn ? order.return_requests[0] : null;
+                    // Debug: Check return data structure
+                    console.log('🔍 Order return data:', {
+                        order_id: order.order_id,
+                        return_requests: order.return_requests,
+                        return_status: order.return_status,
+                        return: order.return
+                    });
+                    
+                    // Return eligibility check - check multiple possible fields
+                    const hasActiveReturn = (order.return_requests && order.return_requests.length > 0) || 
+                                          order.return_status || 
+                                          order.return;
+                    
+                    const latestReturn = order.return_requests?.[0] || 
+                                       order.return_status || 
+                                       order.return;
                     
                     const canReturn = isDelivered && !hasActiveReturn && order.products.some((prod) => {
                         if (!prod.product_return || prod.product_return.toLowerCase() === "0") return false;
@@ -384,17 +412,36 @@ function Orderhistory() {
                             <div className="bg-gray-50 p-2 rounded text-gray-700 text-sm">
                                 <p>Order placed successfully.</p>
                                 <p className="text-blue-600"> Tracking Status: {order.tracking?.status} (Updated on{" "} {new Date(order.tracking?.updatedAt).toLocaleString()})</p>
+                                
+                                {/* Return Status Section */}
                                 {hasActiveReturn && (
-                                    <div className="mt-2">
-                                        <p className={`font-medium ${
-                                            latestReturn.status === 'refund_completed' ? 'text-green-600' :
-                                            latestReturn.status === 'rejected' ? 'text-red-600' :
-                                            'text-orange-500'
-                                        }`}>
-                                            Return Status: {latestReturn.status.replace('_', ' ').toUpperCase()}
-                                        </p>
-                                        <p className="text-xs text-gray-500">Return ID: {latestReturn.return_id}</p>
-                                        {latestReturn.reason && <p className="text-xs text-gray-500">Reason: {latestReturn.reason}</p>}
+                                    <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded">
+                                        <div className="flex justify-between items-center">
+                                            <div>
+                                                <p className={`font-semibold text-sm ${
+                                                    latestReturn.status === 'refund_completed' ? 'text-green-600' :
+                                                    latestReturn.status === 'rejected' ? 'text-red-600' :
+                                                    'text-orange-600'
+                                                }`}>
+                                                    🔄 Return Status: {latestReturn.status ? latestReturn.status.replace('_', ' ').toUpperCase() : 'REQUESTED'}
+                                                </p>
+                                                <p className="text-xs text-gray-600">Return ID: {latestReturn.return_id || latestReturn.id || 'N/A'}</p>
+                                                {latestReturn.reason && <p className="text-xs text-gray-600">Reason: {latestReturn.reason}</p>}
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    const returnId = latestReturn.return_id || latestReturn.id;
+                                                    if (returnId) {
+                                                        navigate(`/return-tracking/${returnId}`);
+                                                    } else {
+                                                        toast.error('Return ID not found');
+                                                    }
+                                                }}
+                                                className="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600"
+                                            >
+                                                View Details
+                                            </button>
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -449,7 +496,14 @@ function Orderhistory() {
                                     </button>
                                 ) : hasActiveReturn ? (
                                     <button
-                                        onClick={() => navigate(`/return-tracking/${latestReturn.return_id}`)}
+                                        onClick={() => {
+                                            const returnId = latestReturn.return_id || latestReturn.id;
+                                            if (returnId) {
+                                                navigate(`/return-tracking/${returnId}`);
+                                            } else {
+                                                toast.error('Return ID not found');
+                                            }
+                                        }}
                                         className={`w-full sm:w-auto p-2 px-6 py-2 rounded mt-3 font-semibold ${
                                             latestReturn.status === 'refund_completed' ? 'bg-green-500 text-white' :
                                             latestReturn.status === 'rejected' ? 'bg-red-500 text-white' :

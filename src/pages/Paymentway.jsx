@@ -80,6 +80,7 @@ const Paymentway = () => {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [couponLoading, setCouponLoading] = useState(false);
+  const [orderLoading, setOrderLoading] = useState(false);
 
 
 
@@ -256,6 +257,7 @@ const Paymentway = () => {
     return;
   }
 
+  setOrderLoading(true);
   try {
     await validationSchema.validate(formData, { abortEarly: false });
     setErrors({});
@@ -355,12 +357,12 @@ const Paymentway = () => {
       formattedErrors[err.path] = err.message;
     });
     setErrors(formattedErrors);
+  } finally {
+    setOrderLoading(false);
   }
 };
 
-
-
-async function startOnlinePayment(latitude, longitude, token) {
+const startOnlinePayment = async (latitude, longitude, token) => {
   const orderData = {
     fname: formData.fname,
     lname: formData.lname,
@@ -448,7 +450,7 @@ async function startOnlinePayment(latitude, longitude, token) {
 
   const rzp = new window.Razorpay(options);
   rzp.open();
-}
+};
 
 
 
@@ -693,9 +695,17 @@ async function startOnlinePayment(latitude, longitude, token) {
           {/* Submit */}
           <button
             type="submit"
-            className="md:col-span-2 w-full mt-5 bg-red-500 text-white py-3 rounded-sm hover:bg-red-600 font-semibold transition"
+            disabled={orderLoading}
+            className="md:col-span-2 w-full mt-5 bg-red-500 text-white py-3 rounded-sm hover:bg-red-600 font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {paymentMethod === "cash on delivery" ? "Place Order" : "Proceed to Payment"}
+            {orderLoading ? (
+              <span className="flex items-center justify-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Processing...
+              </span>
+            ) : (
+              paymentMethod === "cash on delivery" ? "Place Order" : "Proceed to Payment"
+            )}
           </button>
         </form>
       </div>

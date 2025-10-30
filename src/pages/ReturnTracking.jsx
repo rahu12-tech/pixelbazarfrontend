@@ -11,14 +11,14 @@ const ReturnTracking = () => {
   const [loading, setLoading] = useState(true);
 
   const returnSteps = [
-    { status: 'requested', icon: FaUndo, title: 'Return Requested', description: 'Your return request has been submitted' },
-    { status: 'approved', icon: FaCheckCircle, title: 'Return Approved', description: 'Your return has been approved' },
-    { status: 'pickup_scheduled', icon: FaClock, title: 'Pickup Scheduled', description: 'Pickup has been scheduled' },
-    { status: 'picked_up', icon: FaTruck, title: 'Picked Up', description: 'Item has been picked up' },
-    { status: 'received', icon: FaBox, title: 'Return Received', description: 'We have received your return' },
-    { status: 'quality_check', icon: FaCheckCircle, title: 'Quality Check', description: 'Item is being inspected' },
-    { status: 'refund_initiated', icon: FaCheckCircle, title: 'Refund Initiated', description: 'Refund has been processed' },
-    { status: 'refund_completed', icon: FaCheckCircle, title: 'Refund Completed', description: 'Refund completed successfully' }
+    { status: 'REQUESTED', icon: FaUndo, title: 'Return Requested', description: 'Return request submitted successfully' },
+    { status: 'APPROVED', icon: FaCheckCircle, title: 'Return Approved', description: 'Return request approved by admin' },
+    { status: 'PICKUP_SCHEDULED', icon: FaClock, title: 'Pickup Scheduled', description: 'Pickup scheduled with delivery partner' },
+    { status: 'PICKED_UP', icon: FaTruck, title: 'Picked Up', description: 'Product picked up from your location' },
+    { status: 'RECEIVED', icon: FaBox, title: 'Return Received', description: 'Product received at our warehouse' },
+    { status: 'QUALITY_CHECK', icon: FaCheckCircle, title: 'Quality Check', description: 'Product quality verification in progress' },
+    { status: 'REFUND_INITIATED', icon: FaCheckCircle, title: 'Refund Initiated', description: 'Refund process started' },
+    { status: 'REFUND_COMPLETED', icon: FaCheckCircle, title: 'Refund Completed', description: 'Refund credited to your account' }
   ];
 
   useEffect(() => {
@@ -140,16 +140,24 @@ const ReturnTracking = () => {
 
           {/* Timeline Details */}
           <div className="mt-8 space-y-4">
-            {returnData.timeline?.map((event, index) => (
-              <div key={index} className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg">
-                <div className="w-3 h-3 bg-green-500 rounded-full mt-2"></div>
-                <div>
-                  <h4 className="font-medium text-gray-800">{event.status}</h4>
-                  <p className="text-sm text-gray-600">{event.description}</p>
-                  <p className="text-xs text-gray-500">{new Date(event.timestamp).toLocaleString()}</p>
+            {returnSteps.slice(0, getCurrentStepIndex(returnData.status) + 1).map((step, index) => {
+              const eventDate = index === 0 ? returnData.created_at || returnData.last_updated : 
+                               index === getCurrentStepIndex(returnData.status) ? returnData.last_updated : 
+                               returnData.created_at;
+              
+              return (
+                <div key={index} className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg">
+                  <div className="w-3 h-3 bg-green-500 rounded-full mt-2"></div>
+                  <div>
+                    <h4 className="font-medium text-gray-800">{step.title}</h4>
+                    <p className="text-sm text-gray-600">{step.description}</p>
+                    <p className="text-xs text-gray-500">
+                      {eventDate ? new Date(eventDate).toLocaleString() : 'Processing...'}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -161,11 +169,11 @@ const ReturnTracking = () => {
               <p><strong>Reason:</strong> {returnData.reason}</p>
               <p><strong>Status:</strong> 
                 <span className={`ml-2 px-2 py-1 rounded text-xs ${
-                  returnData.status === 'refund_completed' ? 'bg-green-100 text-green-800' :
-                  returnData.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                  returnData.status === 'REFUND_COMPLETED' ? 'bg-green-100 text-green-800' :
+                  returnData.status === 'REJECTED' ? 'bg-red-100 text-red-800' :
                   'bg-yellow-100 text-yellow-800'
                 }`}>
-                  {returnData.status.replace('_', ' ').toUpperCase()}
+                  {returnData.status}
                 </span>
               </p>
               <p><strong>Refund Amount:</strong> ₹{returnData.refund_amount}</p>
