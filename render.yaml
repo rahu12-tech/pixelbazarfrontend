@@ -4,12 +4,7 @@ services:
     env: static
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
-    headers:
-      - source: "/*"
-        headers:
-          - key: "Cache-Control"
-            value: "no-cache"
     routes:
       - type: rewrite
-        source: "/*"
+        source: "/(.*)"
         destination: "/index.html"
