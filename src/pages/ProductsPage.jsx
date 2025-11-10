@@ -62,27 +62,38 @@ export default function ProductsPage() {
               console.log('🔍 Product fields:', {
                 product_category: p.product_category,
                 category: p.category,
+                subcategory: p.subcategory,
                 product_type: p.product_type,
                 product_brand: p.product_brand
               });
+              console.log('🔍 Subcategory details:', p.subcategory);
               
-              // Handle both old and new data formats
+              // Handle category and subcategory filtering
               const categoryMatch = !filter.category || 
-                // Direct matches
+                // Direct category matches
                 p.product_category === filter.category || 
                 p.category?.slug === filter.category ||
+                
+                // Subcategory matches (if subcategory data exists)
                 p.subcategory?.slug === filter.category ||
+                p.subcategory?.name === filter.category ||
                 
-                // OLD DATA COMPATIBILITY (temporary)
-                (filter.category === 'Smartphones' && p.product_category === 'phones') ||
-                (filter.category === 'smartphones' && p.product_category === 'phones') ||
-                (filter.category === 'mobiles-tablets' && p.product_category === 'phones') ||
-                
-                // NEW DATA MAPPING
-                (filter.category === 'smartphones' && p.product_category === 'mobiles-tablets') ||
-                (filter.category === 'tablets' && p.product_category === 'mobiles-tablets') ||
-                (filter.category === 'laptops' && p.product_category === 'electronics') ||
-                (filter.category === 'headphones' && p.product_category === 'electronics');
+                // FALLBACK: When subcategory data missing, use product_type/name matching
+                (filter.category.toLowerCase() === 'laptops' && 
+                 (p.product_category === 'electronics' || 
+                  p.product_type?.toLowerCase().includes('laptop') ||
+                  p.product_name?.toLowerCase().includes('laptop'))) ||
+                  
+                (filter.category.toLowerCase() === 'smartphones' && 
+                 (p.product_category === 'mobiles-tablets' || 
+                  p.product_type?.toLowerCase().includes('phone') ||
+                  p.product_name?.toLowerCase().includes('phone'))) ||
+                  
+                // Category to subcategory mapping (when subcategory exists)
+                (filter.category === 'mobiles-tablets' && 
+                 ['smartphones', 'tablets', 'mobile-accessories'].includes(p.subcategory?.slug)) ||
+                (filter.category === 'electronics' && 
+                 ['laptops', 'headphones', 'speakers', 'cameras', 'gaming'].includes(p.subcategory?.slug));
               
               console.log('🔍 Category match:', categoryMatch, 'for filter:', filter.category);
               
