@@ -112,9 +112,9 @@ const ExploreMoreProduct = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 ">
-                {(exprole ? products : products.slice(0, 4)).map((product) => (
+                {(exprole ? products : products.slice(0, 4)).map((product, index) => (
                     <div
-                        key={product._id}
+                        key={product._id || product.id || index}
                         className="border border-gray-300 rounded-lg p-4 flex flex-col items-center relative group w-full md:w-72 h-80 transition"
                     >
 
@@ -136,8 +136,7 @@ const ExploreMoreProduct = () => {
                                 onClick={() => { datial(product) }}
                                 className="w-full h-full mx-auto object-contain rounded-sm transform transition duration-500 hover:scale-110 hover:-translate-y-0.5 cursor-pointer"
                                 onError={(e) => {
-                                    e.target.src = 'https://via.placeholder.com/150x150?text=' + 
-                                        encodeURIComponent(product.product_name || 'Product');
+                                    e.target.src = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=150&h=150&fit=crop';
                                 }}
                             />
                         </div>

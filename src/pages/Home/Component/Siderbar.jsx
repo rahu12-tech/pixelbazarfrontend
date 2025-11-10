@@ -6,11 +6,55 @@ import { motion, AnimatePresence } from "framer-motion";
 import API from "../../../api/config";
 
 const categories = [
-  { id: 1, name: 'Phones', image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=200&fit=crop', slug: 'phones' },
-  { id: 2, name: 'Laptops', image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=200&fit=crop', slug: 'laptops' },
-  { id: 3, name: 'Speakers', image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=300&h=200&fit=crop', slug: 'speakers' },
-  { id: 4, name: 'Headphones', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=200&fit=crop', slug: 'headphones' },
-  { id: 5, name: 'Cameras', image: 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=300&h=200&fit=crop', slug: 'cameras' }
+  {
+    id: 1, 
+    name: 'Mobiles & Tablets', 
+    image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=200&fit=crop', 
+    slug: 'mobiles-tablets',
+    subcategories: ['Smartphones', 'Tablets', 'Mobile Accessories', 'Cases & Covers', 'Power Banks', 'Screen Guards']
+  },
+  {
+    id: 2, 
+    name: 'Electronics', 
+    image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=200&fit=crop', 
+    slug: 'electronics',
+    subcategories: ['Laptops', 'Cameras', 'Headphones', 'Speakers', 'Gaming', 'Smart Watches']
+  },
+  {
+    id: 3, 
+    name: 'Fashion', 
+    image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=300&h=200&fit=crop', 
+    slug: 'fashion',
+    subcategories: ["Men's Clothing", "Women's Clothing", 'Footwear', 'Watches', 'Bags & Luggage', 'Jewellery']
+  },
+  {
+    id: 4, 
+    name: 'Home & Furniture', 
+    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=200&fit=crop', 
+    slug: 'home-furniture',
+    subcategories: ['Furniture', 'Home Decor', 'Kitchen & Dining', 'Bed & Bath', 'Garden & Outdoor', 'Tools & Hardware']
+  },
+  {
+    id: 5, 
+    name: 'TV & Appliances', 
+    image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=300&h=200&fit=crop', 
+    slug: 'tv-appliances',
+    subcategories: ['Televisions', 'Air Conditioners', 'Refrigerators', 'Washing Machines', 'Kitchen Appliances', 'Small Appliances']
+  },
+  {
+    id: 6, 
+    name: 'Beauty', 
+    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=300&h=200&fit=crop', 
+    slug: 'beauty',
+    subcategories: ['Makeup', 'Skincare', 'Hair Care', 'Fragrances', 'Personal Care', 'Health & Wellness']
+  },
+  {
+    id: 7, 
+    name: 'Food & Grocery', 
+    image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=300&h=200&fit=crop', 
+    slug: 'food-grocery',
+    subcategories: ['Fresh Produce', 'Packaged Food', 'Beverages', 'Snacks', 'Dairy Products', 'Organic Food']
+  }
 ];
 
 const Sidebar = () => {
@@ -54,12 +98,13 @@ const Sidebar = () => {
     });
   };
 
-  const getCategoryProducts = (categorySlug) => {
-    return products.filter(p => 
-      p.product_category === categorySlug || 
-      p.category === categorySlug ||
-      p.product_type === categorySlug
-    ).slice(0, 6);
+  const handleSubcategoryClick = (subcategory) => {
+    navigate('/products', {
+      state: {
+        filter: { category: subcategory },
+        category: subcategory
+      }
+    });
   };
 
   return (
@@ -98,27 +143,29 @@ const Sidebar = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
-            className="absolute left-0 top-full bg-white shadow-lg w-full p-6 grid grid-cols-3 gap-6 z-50"
+            className="absolute left-0 top-full bg-white shadow-lg w-full p-6 grid grid-cols-3 gap-4 z-50 border border-gray-200"
             onMouseEnter={() => timeoutRef.current && clearTimeout(timeoutRef.current)}
             onMouseLeave={handleMouseLeave}
           >
-            {getCategoryProducts(categories[activeIndex].slug).map((prod, i) => (
-              <div key={i} className="p-2 rounded transition cursor-pointer hover:bg-gray-50"
-                   onClick={() => navigate('/product', { state: prod })}>
-                <div className="flex items-center gap-3">
-                  <img 
-                    src={prod.product_img?.startsWith('http') ? prod.product_img : `${import.meta.env.VITE_API_URL}${prod.product_img}`}
-                    className="w-12 h-12 object-cover rounded"
-                    alt={prod.product_name}
-                    onError={(e) => e.target.src = 'https://via.placeholder.com/48x48'}
-                  />
-                  <div>
-                    <h3 className="font-semibold text-gray-800 text-sm">{prod.product_name}</h3>
-                    <p className="text-xs text-gray-600">₹{prod.product_price}</p>
-                  </div>
-                </div>
+            {categories[activeIndex].subcategories.map((subcategory, i) => (
+              <div 
+                key={i} 
+                className="p-3 rounded-md transition cursor-pointer hover:bg-blue-50 hover:text-blue-600 border border-gray-100"
+                onClick={() => handleSubcategoryClick(subcategory)}
+              >
+                <h3 className="font-medium text-gray-800 text-sm hover:text-blue-600 transition-colors">
+                  {subcategory}
+                </h3>
               </div>
             ))}
+            <div className="col-span-3 border-t border-gray-200 pt-4 mt-2">
+              <button
+                onClick={() => handleCategoryClick(categories[activeIndex])}
+                className="text-blue-600 font-medium hover:text-blue-800 transition-colors"
+              >
+                View All {categories[activeIndex].name} →
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

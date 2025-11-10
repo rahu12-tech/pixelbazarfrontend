@@ -6,10 +6,16 @@ const Homedash = () => {
   const [recent, setrecent] = useState([]);
 
   useEffect(() => {
-    axios.get("http://127.0.0.1:8000/api/products/")
-.then((res) => {
-      setrecent(res.data.ordata);
-    });
+    axios.get(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/get-orders/`)
+      .then((res) => {
+        console.log('Admin orders response:', res.data);
+        const orders = res.data.orders || res.data || [];
+        setrecent(Array.isArray(orders) ? orders : []);
+      })
+      .catch((err) => {
+        console.error('Admin orders fetch error:', err);
+        setrecent([]);
+      });
   }, []);
 
   const getStatusColor = (status) => {
@@ -77,7 +83,7 @@ const Homedash = () => {
             </tr>
           </thead>
           <tbody>
-            {recent.slice(-5).map((item) => (
+            {(recent || []).slice(-5).map((item) => (
               <tr key={item._id} className="text-center">
                 <td className="border px-4 py-2">{item._id}</td>
                 <td className="border px-4 py-2">

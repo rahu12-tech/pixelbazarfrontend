@@ -36,10 +36,12 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (token, userData) => {
+    console.log('AuthContext login called with:', { token: token ? 'present' : 'missing', userData });
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(userData));
     setIsLoggedIn(true);
     setUser(userData);
+    console.log('AuthContext state updated:', { isLoggedIn: true, user: userData });
   };
 
   const logout = () => {

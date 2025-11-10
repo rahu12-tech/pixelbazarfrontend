@@ -14,26 +14,17 @@ const CategorySlider = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const res = await axios.get('http://127.0.0.1:8000/api/categories/');
-                setCategories(res.data.categories || res.data);
-            } catch (err) {
-                console.error('Categories fetch error:', err);
-                // Fallback data
-                setCategories([
-                    { id: 1, name: 'Phones', image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=200&fit=crop', slug: 'phones' },
-                    { id: 2, name: 'Laptops', image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=200&fit=crop', slug: 'laptops' },
-                    { id: 3, name: 'Speakers', image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=300&h=200&fit=crop', slug: 'speakers' },
-                    { id: 4, name: 'Headphones', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=200&fit=crop', slug: 'headphones' },
-                    { id: 5, name: 'Cameras', image: 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=300&h=200&fit=crop', slug: 'cameras' }
-                ]);
-            } finally {
-                setLoading(false);
-            }
-        };
-        
-        fetchCategories();
+        // Use new categories directly (no API call for now)
+        setCategories([
+            { id: 1, name: 'Mobiles & Tablets', image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=200&fit=crop', slug: 'mobiles-tablets' },
+            { id: 2, name: 'Electronics', image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=200&fit=crop', slug: 'electronics' },
+            { id: 3, name: 'Fashion', image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=300&h=200&fit=crop', slug: 'fashion' },
+            { id: 4, name: 'Home & Furniture', image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=200&fit=crop', slug: 'home-furniture' },
+            { id: 5, name: 'TV & Appliances', image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=300&h=200&fit=crop', slug: 'tv-appliances' },
+            { id: 6, name: 'Beauty', image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=300&h=200&fit=crop', slug: 'beauty' },
+            { id: 7, name: 'Food & Grocery', image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=300&h=200&fit=crop', slug: 'food-grocery' }
+        ]);
+        setLoading(false);
     }, []);
 
     const handleCategoryClick = (category) => {
@@ -59,7 +50,7 @@ const CategorySlider = () => {
         <section className="my-12">
             <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold text-gray-800 mb-2">Shop by Category</h2>
-                <p className="text-gray-600">Explore our wide range of electronic products</p>
+                <p className="text-gray-600">Explore our wide range of products across all categories</p>
             </div>
 
             <Swiper

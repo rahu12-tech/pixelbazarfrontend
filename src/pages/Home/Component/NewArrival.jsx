@@ -88,8 +88,7 @@ const NewArrival = () => {
                             className="w-full h-full object-cover transition-transform duration-500 md:group-hover:scale-105 cursor-pointer"
                             onClick={() => handleProductClick(featuredProducts[0])}
                             onError={(e) => {
-                                e.target.src = 'https://via.placeholder.com/500x300?text=' + 
-                                    encodeURIComponent(featuredProducts[0].product_name || 'Product');
+                                e.target.src = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&h=300&fit=crop';
                             }}
                         />
                         <div className="absolute inset-0 bg-black/30"></div>
@@ -126,8 +125,7 @@ const NewArrival = () => {
                                 className="w-full h-full object-cover transition-transform duration-500 md:group-hover:scale-105 cursor-pointer"
                                 onClick={() => handleProductClick(product)}
                                 onError={(e) => {
-                                    e.target.src = 'https://via.placeholder.com/300x240?text=' + 
-                                        encodeURIComponent(product.product_name || 'Product');
+                                    e.target.src = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=240&fit=crop';
                                 }}
                             />
                             <div className="absolute inset-0 bg-black/25"></div>

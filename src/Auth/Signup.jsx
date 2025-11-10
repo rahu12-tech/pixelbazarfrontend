@@ -3,6 +3,7 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import jwt_decode from "jwt-decode"; // updated import
+import { useAuth } from '../context/AuthContext';
 // Axios instance with JWT support
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000",
@@ -21,6 +22,7 @@ export default function Signup() {
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
   const navigate = useNavigate();
+  const { login: authLogin } = useAuth();
 
   // No automatic clearing - let user stay logged in
 
@@ -28,6 +30,10 @@ export default function Signup() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const user = localStorage.getItem("user");
+    
+    console.log("🔍 Checking existing login:");
+    console.log("Token:", token);
+    console.log("User:", user);
     
     // Only redirect if BOTH token and user exist and are valid (not null strings)
     if (token && token !== "null" && token !== "undefined" && 
@@ -197,30 +203,67 @@ const handleVerifyOtp = async (e) => {
         const token = data.usertoken || data.token;
         const user = data.exitsuser || data.user;
         
-        console.log("Login successful! Token:", token);
-        console.log("User data:", user);
-        
-        // Store token and user data in both localStorage and sessionStorage
+        // Store token first
         localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
-        sessionStorage.setItem("token", token);
-        sessionStorage.setItem("user", JSON.stringify(user));
         
-        console.log("After storage - Token:", localStorage.getItem("token"));
-        console.log("After storage - User:", localStorage.getItem("user"));
-        console.log("SessionStorage - Token:", sessionStorage.getItem("token"));
-        
-        setMessage("Logged in successfully!");
-        setErrors({});
-        
-        // Clear form
-        setFormData({ name: "", email: "", password: "", location: { lat: null, lng: null } });
-        
-        // Trigger page reload to update auth state
-        window.location.href = "/";
+        try {
+          // Check admin status from backend
+          console.log("🔍 Calling admin check API...");
+          console.log("🔍 API URL:", `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/check-admin/`);
+          console.log("🔍 Token:", token);
+          
+          const adminCheckRes = await axios.get(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/api/user/profile/`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          
+          console.log("🔍 Admin check response:", adminCheckRes.data);
+          
+          const userProfile = adminCheckRes.data.user || adminCheckRes.data;
+          console.log("🔍 User profile:", userProfile);
+          
+          const isAdmin = userProfile?.is_admin || userProfile?.is_staff || userProfile?.is_superuser || 
+                         userProfile?.email?.toLowerCase().includes('admin') ||
+                         userProfile?.id === 1 || userProfile?.id === '1' ||
+                         userProfile?.email === 'jakharrahul812@gmail.com';
+          console.log("🔍 Is Admin:", isAdmin);
+          
+          const finalUser = isAdmin ? { ...user, role: 'admin' } : user;
+          
+          console.log('🔍 Calling authLogin with:', { token: token ? 'present' : 'missing', finalUser });
+          // Update AuthContext immediately
+          authLogin(token, finalUser);
+          console.log('🔍 AuthLogin called successfully');
+          
+          setMessage("Logged in successfully!");
+          setErrors({});
+          setFormData({ name: "", email: "", password: "", location: { lat: null, lng: null } });
+          
+          if (isAdmin) {
+            console.log("🔍 Redirecting to Django admin panel");
+            window.location.href = `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/admin/`;
+          } else {
+            console.log("🔍 Redirecting to home");
+            navigate("/");
+          }
+          
+        } catch (err) {
+          console.log("🚨 Admin check API failed:", err.response?.status, err.response?.data);
+          console.log("🚨 Error details:", err.message);
+          
+          console.log('🔍 Calling authLogin for regular user with:', { token: token ? 'present' : 'missing', user });
+          // Update AuthContext for regular user
+          authLogin(token, user);
+          console.log('🔍 Regular user authLogin called successfully');
+          
+          setMessage("Logged in successfully!");
+          setErrors({});
+          setFormData({ name: "", email: "", password: "", location: { lat: null, lng: null } });
+          
+          console.log("🔍 Regular user, redirecting to home");
+          navigate("/");
+        }
         
       } else {
-        console.log("Login failed:", data);
         setErrors({ general: data.msg || data.message || "Login failed" });
       }
     } catch (err) {
@@ -241,17 +284,17 @@ const handleVerifyOtp = async (e) => {
       console.log("Google login response:", data);
       
       if (data.status === 200 && data.ustoken) {
-        localStorage.setItem("token", data.ustoken);
-        localStorage.setItem("user", JSON.stringify({ email: jwt_decode(data.ustoken).email }));
+        const token = data.ustoken;
+        const decodedUser = jwt_decode(token);
+        const userData = { email: decodedUser.email, name: decodedUser.name };
         
-        console.log("Google token stored:", localStorage.getItem("token"));
+        // Update AuthContext immediately
+        authLogin(token, userData);
         
         setMessage("Logged in with Google!");
         setErrors({});
         
-        setTimeout(() => {
-          navigate("/");
-        }, 100);
+        navigate("/");
       } else {
         setErrors({ general: "Google login failed" });
       }

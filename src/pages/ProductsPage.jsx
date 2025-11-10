@@ -55,11 +55,43 @@ export default function ProductsPage() {
           
           // Apply filters if provided
           if (filter) {
+            console.log('🔍 Filter being applied:', filter);
+            console.log('🔍 First product structure:', data[0]);
+            
             const filtered = data.filter(p => {
+              console.log('🔍 Product fields:', {
+                product_category: p.product_category,
+                category: p.category,
+                product_type: p.product_type,
+                product_brand: p.product_brand
+              });
+              
+              // Handle both old and new data formats
+              const categoryMatch = !filter.category || 
+                // Direct matches
+                p.product_category === filter.category || 
+                p.category?.slug === filter.category ||
+                p.subcategory?.slug === filter.category ||
+                
+                // OLD DATA COMPATIBILITY (temporary)
+                (filter.category === 'Smartphones' && p.product_category === 'phones') ||
+                (filter.category === 'smartphones' && p.product_category === 'phones') ||
+                (filter.category === 'mobiles-tablets' && p.product_category === 'phones') ||
+                
+                // NEW DATA MAPPING
+                (filter.category === 'smartphones' && p.product_category === 'mobiles-tablets') ||
+                (filter.category === 'tablets' && p.product_category === 'mobiles-tablets') ||
+                (filter.category === 'laptops' && p.product_category === 'electronics') ||
+                (filter.category === 'headphones' && p.product_category === 'electronics');
+              
+              console.log('🔍 Category match:', categoryMatch, 'for filter:', filter.category);
+              
               return (!filter.type || p.product_type === filter.type) &&
                      (!filter.brand || p.product_brand === filter.brand) &&
-                     (!filter.category || p.product_category === filter.category || p.category === filter.category);
+                     categoryMatch;
             });
+            
+            console.log('🔍 Filtered results:', filtered.length, 'out of', data.length);
             setFilteredProducts(filtered);
           } else {
             setFilteredProducts(data);
@@ -167,8 +199,7 @@ export default function ProductsPage() {
               onClick={() => goToDetail(product)}
               className="w-full h-48 object-contain rounded cursor-pointer hover:scale-105 transition"
               onError={(e) => {
-                e.target.src = 'https://via.placeholder.com/200x200?text=' + 
-                  encodeURIComponent(product.product_name || 'Product');
+                e.target.src = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop';
               }}
             />
 

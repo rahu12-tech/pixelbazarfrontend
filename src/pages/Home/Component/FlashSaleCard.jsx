@@ -148,10 +148,10 @@ export default function FlashSalesPage() {
             ? product.product_img.startsWith('http') 
               ? product.product_img 
               : `${import.meta.env.VITE_API_URL}${product.product_img}`
-            : `https://via.placeholder.com/150x150?text=${encodeURIComponent(product.product_name || 'Product')}`;
+            : 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=150&h=150&fit=crop';
 
           return (
-            <SwiperSlide key={product._id}>
+            <SwiperSlide key={product._id || product.id || `flash-${Math.random()}`}>
               <div className="border border-gray-300 rounded-lg p-4 flex flex-col items-center relative group">
                 {product.product_discount && (
                   <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
@@ -169,7 +169,7 @@ export default function FlashSalesPage() {
                   alt={product.product_name}
                   style={{ width: "150px", height: "150px" }}
                   onError={(e) => {
-                    e.target.src = `https://via.placeholder.com/150x150?text=${encodeURIComponent(product.product_name || 'Product')}`;
+                    e.target.src = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=150&h=150&fit=crop';
                   }}
                 />
                 <h3 className="font-semibold mt-2 text-center">{product.product_name}</h3>

@@ -250,6 +250,12 @@ const Header = () => {
                     <MdOutlineNotificationsNone className="text-blue-600" size={20} />
                     <span>Notifications</span>
                   </Link>
+                  {(user?.role === 'admin' || user?.is_staff) && (
+                    <a href={`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/admin/`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100">
+                      <MdOutlineAccountCircle className="text-red-600" size={20} />
+                      <span>Admin Panel</span>
+                    </a>
+                  )}
                   <button onClick={logout} className="flex items-center cursor-pointer gap-3 px-4 py-2 hover:bg-gray-100 w-full text-left">
                     <MdOutlineLogout className="text-blue-600" size={20} />
                     <span>Logout</span>
@@ -264,15 +270,6 @@ const Header = () => {
                   Login
                 </button>
               </Link>
-              <a 
-                href={`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/admin/`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <button className="px-4 py-2 bg-red-500 text-white rounded-md cursor-pointer hover:bg-red-600 transition">
-                  Admin
-                </button>
-              </a>
             </div>
           )}
         </div>
@@ -315,18 +312,7 @@ const Header = () => {
             <Link to="/about" className="block text-lg font-medium text-black hover:text-gray-600" onClick={() => setMenuOpen(false)}>About</Link>
             <Link to="/contact" className="block text-lg font-medium text-black hover:text-gray-600" onClick={() => setMenuOpen(false)}>Contact</Link>
             {!isLoggedIn && (
-              <>
-                <Link to="/signup" className="block text-lg font-medium text-black hover:text-gray-600" onClick={() => setMenuOpen(false)}>Login</Link>
-                <a 
-                  href={`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/admin/`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block text-lg font-medium text-red-600 hover:text-red-700"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  Admin Panel
-                </a>
-              </>
+              <Link to="/signup" className="block text-lg font-medium text-black hover:text-gray-600" onClick={() => setMenuOpen(false)}>Login</Link>
             )}
           </motion.div>
         )}
