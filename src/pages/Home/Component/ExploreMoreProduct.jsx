@@ -99,75 +99,81 @@ const ExploreMoreProduct = () => {
         navigate("/product", { state: product });
     }
     return (
-        <div className="md:p-6 ">
+        <div className="p-4 md:p-6">
             <Toaster position="top-right" reverseOrder={false} />
-            <div className="mb-6">
-                <span className="text-red-500 text-sm font-semibold flex items-center gap-2">
-                    <span className="w-2 h-5 bg-red-500 rounded"></span>
+            <div className="mb-4 md:mb-6">
+                <span className="text-red-500 text-xs md:text-sm font-semibold flex items-center gap-2">
+                    <span className="w-2 h-4 md:h-5 bg-red-500 rounded"></span>
                     Our Products
                 </span>
-                <h2 className="text-2xl font-bold mt-4 text-gray-900">
+                <h2 className="text-lg md:text-2xl font-bold mt-2 md:mt-4 text-gray-900">
                     Explore Our Product
                 </h2>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 ">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
                 {(exprole ? products : products.slice(0, 4)).map((product, index) => (
                     <div
                         key={product._id || product.id || index}
-                        className="border border-gray-300 rounded-lg p-4 flex flex-col items-center relative group w-full md:w-72 h-80 transition"
+                        className="border border-gray-300 rounded-lg p-3 md:p-4 flex flex-col justify-between relative group w-full min-h-[280px] md:h-80 transition"
                     >
 
                         <button
                             onClick={() => handleToggleWishlist(product)}
-                            className="absolute top-2 right-3 text-gray-500 opacity-0 group-hover:opacity-100 transition"
+                            className="absolute top-2 right-2 text-gray-500 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition z-10"
                         >
-                            {wishlistClicked[product._id] ? <IoIosHeart className="text-red-400" size={20} /> : <BsHeart size={18} />}
+                            {wishlistClicked[product._id] ? <IoIosHeart className="text-red-400" size={16} /> : <BsHeart size={14} />}
                         </button>
 
 
-                        <div className="w-36 h-32 rounded-md mb-3 flex items-center justify-center">
-                            <img
-                                src={product.product_img?.startsWith('http') ? 
-                                    product.product_img : 
-                                    `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}${product.product_img}`
-                                }
-                                alt={product.product_name}
-                                onClick={() => { datial(product) }}
-                                className="w-full h-full mx-auto object-contain rounded-sm transform transition duration-500 hover:scale-110 hover:-translate-y-0.5 cursor-pointer"
-                                onError={(e) => {
-                                    e.target.src = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=150&h=150&fit=crop';
-                                }}
-                            />
-                        </div>
+                        <div className="flex flex-col flex-1">
+                            <div className="w-20 h-20 md:w-36 md:h-32 rounded-md mb-2 md:mb-3 flex items-center justify-center mx-auto mt-2">
+                                <img
+                                    src={product.product_img?.startsWith('http') ? 
+                                        product.product_img : 
+                                        `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}${product.product_img}`
+                                    }
+                                    alt={product.product_name}
+                                    onClick={() => { datial(product) }}
+                                    className="w-full h-full mx-auto object-contain rounded-sm transform transition duration-300 hover:scale-105 cursor-pointer"
+                                    onError={(e) => {
+                                        e.target.src = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=150&h=150&fit=crop';
+                                    }}
+                                />
+                            </div>
 
-                        {/* Title */}
-                        <h3 className="font-semibold mt-2 text-center">
-                            {product.product_name}
-                        </h3>
+                            {/* Title */}
+                            <h3 className="font-medium text-center text-xs md:text-base line-clamp-2 px-1 mb-1">
+                                {product.product_name}
+                            </h3>
 
-                        {/* Price */}
-                        <p className="mt-1 text-center">
-                            <span className="font-bold text-red-500">
-                                {product.product_price}
-                            </span>{" "}
-                            <span className="line-through text-gray-400">
-                                {product.product_oldPrice}
-                            </span>
-                        </p>
+                            {/* Price */}
+                            <p className="text-center mb-1">
+                                <span className="font-bold text-red-500 text-sm md:text-base">
+                                    ₹{product.product_price}
+                                </span>{" "}
+                                {product.product_oldPrice && (
+                                    <span className="line-through text-gray-400 text-xs md:text-sm">
+                                        ₹{product.product_oldPrice}
+                                    </span>
+                                )}
+                            </p>
 
-                        {/* Rating */}
-                        <div className="flex items-center mt-1">
-                            {renderStars(product?.rating)}
-                            <span className="ml-2 text-sm text-gray-500">
-                                ({product?.reviews || 0})
-                            </span>
+                            {/* Rating */}
+                            <div className="flex items-center justify-center mb-2">
+                                <div className="flex text-xs">
+                                    {renderStars(product?.rating)}
+                                </div>
+                                <span className="ml-1 text-xs text-gray-500">
+                                    ({product?.reviews || 0})
+                                </span>
+                            </div>
                         </div>
 
                         {/* Add to Cart */}
                         <button
                             onClick={() => handleAddToCart(product)}
-                            className="mt-3 w-full bg-black text-white text-sm py-2 rounded opacity-100 md:opacity-0 md:group-hover:opacity-100 cursor-pointer transition"
+                            className="w-full bg-black text-white text-xs md:text-sm py-1.5 md:py-2 rounded opacity-100 md:opacity-0 md:group-hover:opacity-100 cursor-pointer transition mt-auto"
                         >
                             Add to Cart
                         </button>
@@ -175,7 +181,7 @@ const ExploreMoreProduct = () => {
                 ))}
             </div>
 
-            <div className="mt-16 text-center">
+            <div className="mt-8 md:mt-16 text-center">
                 <button
                     onClick={() => navigate('/products', { 
                         state: { 
@@ -183,7 +189,7 @@ const ExploreMoreProduct = () => {
                             category: 'All Products'
                         } 
                     })}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 transition"
+                    className="px-6 py-2 bg-red-600 text-white text-sm md:text-base rounded-lg shadow hover:bg-red-700 transition"
                 >
                     View All Products
                 </button>
