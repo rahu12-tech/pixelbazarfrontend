@@ -1,9 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaChevronDown } from 'react-icons/fa';
 
 const CategoryNavbar = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const handleCategoryInteraction = (index) => {
+    if (isMobile) {
+      setActiveDropdown(activeDropdown === index ? null : index);
+    } else {
+      setActiveDropdown(index);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!isMobile) {
+      setActiveDropdown(null);
+    }
+  };
 
   const categories = [
     {
@@ -85,20 +111,35 @@ const CategoryNavbar = () => {
     }
   ];
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isMobile && !event.target.closest('.category-dropdown')) {
+        setActiveDropdown(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [isMobile]);
+
   return (
     <div className="bg-white border-b border-gray-200 shadow-sm">
       <div className="container mx-auto">
-        <nav className="flex items-center justify-center space-x-8 py-3">
+        <nav className="flex items-center justify-center space-x-2 md:space-x-8 py-3 overflow-x-auto">
           {categories.map((category, index) => (
             <div
               key={index}
-              className="relative group"
-              onMouseEnter={() => setActiveDropdown(index)}
-              onMouseLeave={() => setActiveDropdown(null)}
+              className="relative group category-dropdown"
+              onMouseEnter={() => !isMobile && handleCategoryInteraction(index)}
+              onMouseLeave={handleMouseLeave}
             >
-              <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 font-medium py-2 px-3 rounded-md transition-colors">
+              <button 
+                className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 font-medium py-2 px-2 md:px-3 rounded-md transition-colors whitespace-nowrap text-sm md:text-base"
+                onClick={() => isMobile && handleCategoryInteraction(index)}
+              >
                 <span>{category.name}</span>
-                <FaChevronDown className="text-xs" />
+                <FaChevronDown className={`text-xs transition-transform ${activeDropdown === index ? 'rotate-180' : ''}`} />
               </button>
 
               {/* Dropdown Menu */}

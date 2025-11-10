@@ -144,7 +144,7 @@ const Header = () => {
         {/* Logo */}
         <h1 className="text-2xl font-bold">
           <Link to="/" className="text-red-900">
-            <img src={genix_bazar} alt="" className="w-30"/>
+            <img src={`${genix_bazar}?v=${Date.now()}`} alt="GenixBazar Logo" className="w-30"/>
           </Link>
         </h1>
 
