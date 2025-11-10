@@ -14,7 +14,7 @@ const ExploreMoreProduct = () => {
     const [exprole, setexprole] = useState(false);
     const dispatch = useDispatch();
     const [wishlistClicked, setWishlistClicked] = useState({});
-
+    const navigate = useNavigate();
     const [products, setProducts] = useState([]);
 
     useEffect(() => {
@@ -94,7 +94,6 @@ const ExploreMoreProduct = () => {
         );
     };
 
-    const navigate = useNavigate();
     let datial = (product) => {
         navigate("/product", { state: product });
     }

@@ -11,7 +11,7 @@ import { TbGiftCard, TbCoinRupee } from "react-icons/tb";
 import { FaStar } from "react-icons/fa6";
 import { BiSolidShoppingBags } from "react-icons/bi";
 import toast, { Toaster } from "react-hot-toast";
-import genix_bazar from '../assets/genix_bazar_new.png'
+import genix_bazar_new from '../assets/genix_bazar_new.png'
 import { useAuth } from '../context/AuthContext';
 
 const Header = () => {
@@ -144,7 +144,7 @@ const Header = () => {
         {/* Logo */}
         <h1 className="text-2xl font-bold">
           <Link to="/" className="text-red-900">
-            <img src={genix_bazar} alt="GenixBazar Logo" className="w-32 h-auto"/>
+            <img src={genix_bazar_new} alt="GenixBazar Logo" className="w-32 h-auto" key="logo-new"/>
           </Link>
         </h1>
 
